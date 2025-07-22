@@ -1,0 +1,44 @@
+{{ define "main" }}
+  {{/* Home page content */}}
+  {{ .Content }}
+  
+  {{/* Blog posts list ordered by date (newest first) - Requirements 4.1, 4.2 */}}
+  {{ $posts := site.RegularPages.ByDate.Reverse }}
+  {{ if $posts }}
+    {{ range $posts }}
+      <article class="mb-12">
+        <header class="mb-4">
+          <h2 class="text-2xl font-bold mb-2">
+            <a href="{{ .RelPermalink }}" class="hover:underline">
+              {{ .LinkTitle }}
+            </a>
+          </h2>
+          
+          {{/* Publication date - Requirements 4.2 */}}
+          {{ if not .Date.IsZero }}
+            <time datetime="{{ .Date.Format "2006-01-02" }}" class="text-sm opacity-70">
+              {{ .Date.Format "January 2, 2006" }}
+            </time>
+          {{ end }}
+        </header>
+        
+        {{/* Post summary if available */}}
+        {{ if .Summary }}
+          <div class="mb-4">
+            {{ .Summary }}
+          </div>
+          
+          {{ if .Truncated }}
+            <p>
+              <a href="{{ .RelPermalink }}" class="hover:underline">
+                Read more →
+              </a>
+            </p>
+          {{ end }}
+        {{ end }}
+      </article>
+    {{ end }}
+  {{ else }}
+    <p>No posts found.</p>
+  {{ end }}
+{{ end }}

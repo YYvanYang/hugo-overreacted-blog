@@ -1,0 +1,216 @@
+{{/* Navigation menu partial with hierarchical support and external link handling */}}
+{{- $currentPage := . }}
+{{- $isMobile := false }}
+{{- if reflect.IsMap . }}
+  {{- if .context }}
+    {{- $currentPage = .context }}
+  {{- end }}
+  {{- if .mobile }}
+    {{- $isMobile = .mobile }}
+  {{- end }}
+{{- end }}
+
+{{- with site.Menus.main }}
+  <div class="nav-menu" style="display: flex; align-items: center; gap: var(--space-6);">
+    {{- range . }}
+      {{- if not .Parent }}
+        {{- $hasChildren := .HasChildren }}
+        {{- $isExternal := strings.HasPrefix .URL "http" }}
+        {{- $isActive := false }}
+        {{- $isAncestor := false }}
+        
+        {{/* Check if current page matches this menu item */}}
+        {{- if $currentPage.IsMenuCurrent .Menu . }}
+          {{- $isActive = true }}
+        {{- else if $currentPage.HasMenuCurrent .Menu . }}
+          {{- $isAncestor = true }}
+        {{- end }}
+        
+        <div class="nav-item{{ if $hasChildren }} nav-item-dropdown{{ end }}" style="position: relative;">
+          {{/* Main menu link */}}
+          <a href="{{ .URL | relURL }}"
+             {{- if $isExternal }}
+               {{- with .Params.target }} target="{{ . }}"{{ else }} target="_blank"{{ end }}
+               {{- with .Params.rel }} rel="{{ . }}"{{ else }} rel="external noopener noreferrer"{{ end }}
+             {{- end }}
+             {{- if $isActive }}
+               class="nav-link active focus-visible" aria-current="page"
+             {{- else if $isAncestor }}
+               class="nav-link ancestor focus-visible" aria-current="true"
+             {{- else }}
+               class="nav-link focus-visible"
+             {{- end }}
+             style="color: {{ if $isActive }}var(--color-link){{ else if $isAncestor }}var(--color-link){{ else }}var(--color-text-secondary){{ end }}; text-decoration: none; transition: color var(--transition-fast); display: flex; align-items: center; gap: var(--space-1);"
+             onmouseover="this.style.color='var(--color-link)'"
+             onmouseout="this.style.color='{{ if $isActive }}var(--color-link){{ else if $isAncestor }}var(--color-link){{ else }}var(--color-text-secondary){{ end }}'"
+             {{- if $hasChildren }}
+               aria-haspopup="true"
+               aria-expanded="false"
+             {{- end }}
+          >
+            {{ .Name }}
+            {{- if $isExternal }}
+              <svg style="width: 0.875rem; height: 0.875rem; margin-left: var(--space-1);" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+              </svg>
+              <span class="sr-only">(opens in new tab)</span>
+            {{- end }}
+            {{- if $hasChildren }}
+              <svg style="width: 0.875rem; height: 0.875rem; margin-left: var(--space-1); transition: transform var(--transition-fast);" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            {{- end }}
+          </a>
+          
+          {{/* Dropdown menu for children */}}
+          {{- if $hasChildren }}
+            <div class="nav-submenu" 
+                 style="position: absolute; top: 100%; left: 0; background: var(--color-bg); border: 1px solid var(--color-border); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: var(--space-2); min-width: 12rem; z-index: 50; opacity: 0; visibility: hidden; transform: translateY(-0.5rem); transition: all var(--transition-fast);"
+                 aria-hidden="true">
+              {{- range .Children }}
+                {{- $childIsExternal := strings.HasPrefix .URL "http" }}
+                {{- $childIsActive := false }}
+                
+                {{- if $currentPage.IsMenuCurrent .Menu . }}
+                  {{- $childIsActive = true }}
+                {{- end }}
+                
+                <a href="{{ .URL | relURL }}"
+                   {{- if $childIsExternal }}
+                     {{- with .Params.target }} target="{{ . }}"{{ else }} target="_blank"{{ end }}
+                     {{- with .Params.rel }} rel="{{ . }}"{{ else }} rel="external noopener noreferrer"{{ end }}
+                   {{- end }}
+                   {{- if $childIsActive }}
+                     class="nav-sublink active focus-visible" aria-current="page"
+                   {{- else }}
+                     class="nav-sublink focus-visible"
+                   {{- end }}
+                   style="display: flex; align-items: center; gap: var(--space-1); padding: var(--space-2); color: {{ if $childIsActive }}var(--color-link){{ else }}var(--color-text){{ end }}; text-decoration: none; border-radius: var(--radius-sm); transition: all var(--transition-fast); white-space: nowrap;"
+                   onmouseover="this.style.backgroundColor='var(--color-bg-secondary)'; this.style.color='var(--color-link)'"
+                   onmouseout="this.style.backgroundColor='transparent'; this.style.color='{{ if $childIsActive }}var(--color-link){{ else }}var(--color-text){{ end }}'"
+                >
+                  {{ .Name }}
+                  {{- if $childIsExternal }}
+                    <svg style="width: 0.75rem; height: 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                    </svg>
+                    <span class="sr-only">(opens in new tab)</span>
+                  {{- end }}
+                </a>
+              {{- end }}
+            </div>
+          {{- end }}
+        </div>
+      {{- end }}
+    {{- end }}
+  </div>
+{{- end }}
+
+{{/* Navigation interaction styles and JavaScript */}}
+<style>
+  .nav-item-dropdown:hover .nav-submenu,
+  .nav-item-dropdown:focus-within .nav-submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+  
+  .nav-item-dropdown:hover .nav-link svg:last-child,
+  .nav-item-dropdown:focus-within .nav-link svg:last-child {
+    transform: rotate(180deg);
+  }
+  
+  /* Mobile styles */
+  @media (max-width: 768px) {
+    .mobile-menu .nav-menu {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-3);
+      width: 100%;
+    }
+    
+    .mobile-menu .nav-item {
+      width: 100%;
+    }
+    
+    .mobile-menu .nav-submenu {
+      position: static;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+      box-shadow: none;
+      border: none;
+      background: transparent;
+      padding: 0;
+      margin-left: var(--space-4);
+      margin-top: var(--space-2);
+    }
+    
+    .mobile-menu .nav-sublink {
+      padding: var(--space-1) 0;
+    }
+  }
+</style>
+
+<script>
+  // Mobile menu toggle functionality
+  document.addEventListener('DOMContentLoaded', function() {
+    const mobileToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    
+    if (mobileToggle && mobileMenu) {
+      mobileToggle.addEventListener('click', function() {
+        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+        const menuIcon = this.querySelector('.menu-icon');
+        const closeIcon = this.querySelector('.close-icon');
+        
+        // Toggle menu visibility
+        if (isExpanded) {
+          mobileMenu.classList.add('hidden');
+          mobileMenu.setAttribute('aria-hidden', 'true');
+          this.setAttribute('aria-expanded', 'false');
+          this.setAttribute('aria-label', 'Open mobile menu');
+          menuIcon.classList.remove('hidden');
+          closeIcon.classList.add('hidden');
+        } else {
+          mobileMenu.classList.remove('hidden');
+          mobileMenu.setAttribute('aria-hidden', 'false');
+          this.setAttribute('aria-expanded', 'true');
+          this.setAttribute('aria-label', 'Close mobile menu');
+          menuIcon.classList.add('hidden');
+          closeIcon.classList.remove('hidden');
+        }
+      });
+    }
+    
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+      if (mobileMenu && mobileToggle) {
+        const isClickInsideNav = mobileToggle.contains(event.target) || mobileMenu.contains(event.target);
+        const isMenuOpen = !mobileMenu.classList.contains('hidden');
+        
+        if (!isClickInsideNav && isMenuOpen) {
+          mobileMenu.classList.add('hidden');
+          mobileMenu.setAttribute('aria-hidden', 'true');
+          mobileToggle.setAttribute('aria-expanded', 'false');
+          mobileToggle.setAttribute('aria-label', 'Open mobile menu');
+          mobileToggle.querySelector('.menu-icon').classList.remove('hidden');
+          mobileToggle.querySelector('.close-icon').classList.add('hidden');
+        }
+      }
+    });
+    
+    // Close mobile menu on escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && mobileMenu && !mobileMenu.classList.contains('hidden')) {
+        mobileMenu.classList.add('hidden');
+        mobileMenu.setAttribute('aria-hidden', 'true');
+        mobileToggle.setAttribute('aria-expanded', 'false');
+        mobileToggle.setAttribute('aria-label', 'Open mobile menu');
+        mobileToggle.querySelector('.menu-icon').classList.remove('hidden');
+        mobileToggle.querySelector('.close-icon').classList.add('hidden');
+        mobileToggle.focus();
+      }
+    });
+  });
+</script>

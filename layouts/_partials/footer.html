@@ -1,0 +1,45 @@
+{{/* Footer partial with site information - Requirements 7.1, 7.3 */}}
+<footer id="footer" role="contentinfo" style="border-top: 1px solid var(--color-border); margin-top: var(--space-16);">
+  <div class="container" style="padding-top: var(--space-8); padding-bottom: var(--space-8);">
+    <div style="text-align: center; color: var(--color-text-secondary);">
+      <p>
+        &copy; {{ now.Year }} {{ site.Title }}. 
+        Built with 
+        <a href="https://gohugo.io" 
+           class="focus-visible"
+           style="color: var(--color-link); text-decoration: none; transition: color var(--transition-fast);"
+           target="_blank" 
+           rel="noopener noreferrer"
+           aria-label="Hugo static site generator (opens in new tab)"
+           onmouseover="this.style.color='var(--color-link-hover)'"
+           onmouseout="this.style.color='var(--color-link)'">
+          Hugo
+        </a>.
+      </p>
+      
+      {{/* Additional footer navigation if needed */}}
+      {{ with site.Menus.footer }}
+        <nav role="navigation" aria-label="Footer navigation" style="margin-top: var(--space-4);">
+          <ul style="list-style: none; padding: 0; margin: 0; display: flex; justify-content: center; gap: var(--space-6); flex-wrap: wrap;">
+            {{ range . }}
+              <li>
+                <a href="{{ .URL | relURL }}"
+                   class="focus-visible"
+                   style="color: var(--color-text-secondary); text-decoration: none; transition: color var(--transition-fast);"
+                   {{ if strings.HasPrefix .URL "http" }}
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     aria-label="{{ .Name }} (opens in new tab)"
+                   {{ end }}
+                   onmouseover="this.style.color='var(--color-link)'"
+                   onmouseout="this.style.color='var(--color-text-secondary)'">
+                  {{ .Name }}
+                </a>
+              </li>
+            {{ end }}
+          </ul>
+        </nav>
+      {{ end }}
+    </div>
+  </div>
+</footer>

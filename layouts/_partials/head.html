@@ -1,0 +1,105 @@
+{{/* Head partial for meta tags, title, and asset loading */}}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+{{/* Page title */}}
+<title>
+  {{- if .IsHome }}
+    {{ site.Title }}
+  {{- else }}
+    {{ .Title }} | {{ site.Title }}
+  {{- end }}
+</title>
+
+
+
+{{/* Language and alternate links */}}
+{{ if .IsTranslated }}
+  {{ range .AllTranslations }}
+    <link rel="alternate" hreflang="{{ .Language.Lang }}" href="{{ .Permalink }}">
+  {{ end }}
+{{ end }}
+
+{{/* RSS feed */}}
+{{ with .OutputFormats.Get "rss" }}
+  <link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">
+{{ end }}
+
+{{/* Favicon */}}
+<link rel="icon" type="image/x-icon" href="{{ "favicon.ico" | relURL }}">
+
+{{/* SEO optimization - comprehensive meta tags, Open Graph, Twitter Cards, and JSON-LD */}}
+{{ partial "seo.html" . }}
+
+{{/* CSS processing with templates.Defer for proper Tailwind integration */}}
+{{ with (templates.Defer (dict "key" "global")) }}
+  {{ partial "css.html" . }}
+{{ end }}
+
+{{/* Theme detection script - must be inline to prevent flash */}}
+<script>
+  // No-flash theme detection and application before page render
+  (function() {
+    const STORAGE_KEY = 'theme-preference';
+    const THEMES = { LIGHT: 'light', DARK: 'dark', SYSTEM: 'system' };
+    
+    // Get stored preference or default to system
+    let storedTheme;
+    try {
+      storedTheme = localStorage.getItem(STORAGE_KEY) || THEMES.SYSTEM;
+    } catch (error) {
+      storedTheme = THEMES.SYSTEM;
+    }
+    
+    // Determine effective theme
+    let effectiveTheme;
+    if (storedTheme === THEMES.SYSTEM) {
+      effectiveTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches 
+        ? THEMES.DARK 
+        : THEMES.LIGHT;
+    } else {
+      effectiveTheme = storedTheme;
+    }
+    
+    // Apply theme immediately
+    const html = document.documentElement;
+    const isDark = effectiveTheme === THEMES.DARK;
+    
+    if (isDark) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+    
+    // Set data attribute and color-scheme
+    html.setAttribute('data-theme', effectiveTheme);
+    html.style.colorScheme = effectiveTheme;
+    
+    // Update meta theme-color for mobile browsers
+    const colors = { light: '#ffffff', dark: '#282c35' };
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.name = 'theme-color';
+      document.head.appendChild(metaThemeColor);
+    }
+    metaThemeColor.content = colors[effectiveTheme] || colors.light;
+    
+    // Set initial syntax highlighting CSS based on theme
+    // This will be updated by the full theme switcher when it loads
+    document.addEventListener('DOMContentLoaded', function() {
+      const lightCSS = document.getElementById('chroma-light-css');
+      const darkCSS = document.getElementById('chroma-dark-css');
+      
+      if (lightCSS && darkCSS) {
+        if (isDark) {
+          lightCSS.media = 'not all';
+          darkCSS.media = 'all';
+        } else {
+          lightCSS.media = 'all';
+          darkCSS.media = 'not all';
+        }
+      }
+    });
+  })();
+</script>

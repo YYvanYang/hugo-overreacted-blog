@@ -1,0 +1,66 @@
+{
+  "name": "hugo-overreacted-blog",
+  "version": "1.0.0",
+  "description": "A minimalist Hugo blog template inspired by overreacted.io with enhanced asset processing pipeline",
+  "main": "index.js",
+  "scripts": {
+    "build": "./scripts/build-assets.sh",
+    "build:production": "HUGO_ENV=production NODE_ENV=production ./scripts/build-assets.sh",
+    "build:development": "HUGO_ENV=development NODE_ENV=development ./scripts/build-assets.sh",
+    "build:ci": "CI=true ./scripts/build-assets.sh",
+    "dev": "hugo server --buildDrafts --buildFuture --disableFastRender",
+    "serve": "hugo server",
+    "clean": "rm -rf public resources/_gen tmp/hugo_cache",
+    "validate": "./scripts/build-assets.sh --validate",
+    "optimize": "npm run build:production && npm run validate",
+    "precommit": "npm run build:development",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:staging": "./scripts/deploy.sh staging",
+    "deploy:production": "./scripts/deploy.sh production",
+    "deploy:dry-run": "DRY_RUN=true ./scripts/deploy.sh",
+    "wrangler:dev": "wrangler dev",
+    "wrangler:deploy": "wrangler deploy",
+    "wrangler:whoami": "wrangler whoami",
+    "test:deployment": "./scripts/test-deployment.sh",
+    "test:deployment:report": "./scripts/test-deployment.sh --report",
+    "test:system": "./scripts/test-system.sh",
+    "ci:build": "CI=true GITHUB_ACTIONS=true npm run build:production",
+    "ci:test": "CI=true GITHUB_ACTIONS=true npm run test:deployment",
+    "ci:deploy": "CI=true GITHUB_ACTIONS=true npm run deploy",
+    "version:check": "hugo version && node --version && npm --version"
+  },
+  "keywords": [
+    "hugo",
+    "blog",
+    "template",
+    "overreacted",
+    "minimalist",
+    "tailwind",
+    "static-site"
+  ],
+  "author": "Blog Author",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^4.1.11",
+    "@tailwindcss/cli": "^4.1.11",
+    "postcss": "^8.4.32",
+    "postcss-cli": "^11.0.0",
+    "autoprefixer": "^10.4.16",
+    "cssnano": "^6.0.1",
+    "terser": "^5.24.0",
+    "html-minifier-terser": "^7.2.0",
+    "wrangler": "^3.98.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/hugo-overreacted-blog.git"
+  },
+  "bugs": {
+    "url": "https://github.com/username/hugo-overreacted-blog/issues"
+  },
+  "homepage": "https://github.com/username/hugo-overreacted-blog#readme"
+}

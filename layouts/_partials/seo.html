@@ -1,0 +1,237 @@
+{{/* SEO Optimization Partial Template */}}
+{{/* Generate comprehensive meta tags for SEO, Open Graph, Twitter Cards, and JSON-LD structured data */}}
+
+{{/* Basic SEO Meta Tags */}}
+<meta name="description"
+    content="{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}">
+{{ with .Site.Language.LanguageCode }}
+<meta name="language" content="{{ . }}">{{ end }}
+{{ with .Site.Copyright }}
+<meta name="copyright" content="{{ . }}">{{ end }}
+{{ with .Site.Params.author }}
+<meta name="author" content="{{ . }}">{{ end }}
+
+{{/* Canonical URL */}}
+<link rel="canonical" href="{{ .Permalink }}">
+
+{{/* Open Graph Meta Tags */}}
+<meta property="og:title" content="{{ .Title }}{{ if not .IsHome }} | {{ .Site.Title }}{{ end }}">
+<meta property="og:description"
+    content="{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}">
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:site_name" content="{{ .Site.Title }}">
+{{ with .Site.Language.LanguageCode }}
+<meta property="og:locale" content="{{ . }}">{{ end }}
+
+{{/* Open Graph Images */}}
+{{ $images := slice }}
+{{ with .Params.images }}
+{{ range first 6 . }}
+{{ $images = $images | append (absURL .) }}
+{{ end }}
+{{ else }}
+{{/* Try to find featured image from page resources */}}
+{{ $featuredImage := "" }}
+{{ with .Resources.ByType "image" }}
+{{ $featuredImage = (.GetMatch "*feature*") }}
+{{ if not $featuredImage }}
+{{ $featuredImage = (.GetMatch "{*cover*,*thumbnail*}") }}
+{{ end }}
+{{ if not $featuredImage }}
+{{ $featuredImage = index . 0 }}
+{{ end }}
+{{ end }}
+{{ with $featuredImage }}
+{{ $images = $images | append .Permalink }}
+{{ else }}
+{{/* Fallback to site-wide default images */}}
+{{ with .Site.Params.images }}
+{{ range first 6 . }}
+{{ $images = $images | append (absURL .) }}
+{{ end }}
+{{ end }}
+{{ end }}
+{{ end }}
+{{ range $images }}
+<meta property="og:image" content="{{ . }}">
+{{ end }}
+
+{{/* Article-specific Open Graph tags */}}
+{{ if .IsPage }}
+{{ with .PublishDate }}
+<meta property="article:published_time" content="{{ .Format " 2006-01-02T15:04:05Z07:00" }}">{{ end }}
+{{ with .Lastmod }}
+<meta property="article:modified_time" content="{{ .Format " 2006-01-02T15:04:05Z07:00" }}">{{ end }}
+{{ with .Site.Params.author }}
+<meta property="article:author" content="{{ . }}">{{ end }}
+{{ with .GetTerms "tags" }}
+{{ range first 6 . }}
+<meta property="article:tag" content="{{ .LinkTitle }}">
+{{ end }}
+{{ end }}
+{{ with .Params.series }}
+{{ range . }}
+<meta property="article:section" content="{{ . }}">
+{{ end }}
+{{ end }}
+{{ end }}
+
+{{/* Twitter Card Meta Tags */}}
+<meta name="twitter:card" content="summary{{ if $images }}_large_image{{ end }}">
+{{ with .Site.Params.social.twitter }}
+<meta name="twitter:site" content="@{{ . }}">{{ end }}
+{{ with .Site.Params.social.twitter }}
+<meta name="twitter:creator" content="@{{ . }}">{{ end }}
+<meta name="twitter:title" content="{{ .Title }}{{ if not .IsHome }} | {{ .Site.Title }}{{ end }}">
+<meta name="twitter:description"
+    content="{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}">
+{{ with index $images 0 }}
+<meta name="twitter:image" content="{{ . }}">{{ end }}
+
+{{/* Additional meta tags for media */}}
+{{ with .Params.audio }}
+{{ range . }}
+<meta property="og:audio" content="{{ . | absURL }}">
+{{ end }}
+{{ end }}
+{{ with .Params.videos }}
+{{ range . }}
+<meta property="og:video" content="{{ . | absURL }}">
+{{ end }}
+{{ end }}
+
+{{/* JSON-LD Structured Data */}}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "{{ if .IsPage }}BlogPosting{{ else if .IsHome }}WebSite{{ else }}WebPage{{ end }}",
+  "headline": "{{ .Title }}",
+  "description": "{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}",
+  "url": "{{ .Permalink }}",
+  {{ if .IsPage }}
+  "datePublished": "{{ .PublishDate.Format "2006-01-02T15:04:05Z07:00" }}",
+  "dateModified": "{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}",
+  {{ end }}
+  {{ with .Site.Params.author }}
+  "author": {
+    "@type": "Person",
+    "name": "{{ . }}"
+  },
+  {{ end }}
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ .Site.Title }}",
+    "url": "{{ .Site.BaseURL }}"
+    {{ with index $images 0 }},
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ . }}"
+    }
+    {{ end }}
+  }
+  {{ with index $images 0 }},
+  "image": {
+    "@type": "ImageObject",
+    "url": "{{ . }}"
+  }
+  {{ end }}
+  {{ if .IsHome }},
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ .Site.BaseURL }}search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+  {{ end }}
+  {{ if and .IsPage (.GetTerms "tags") }},
+  "keywords": [
+    {{ range $i, $tag := (.GetTerms "tags") }}
+      {{ if $i }}, {{ end }}"{{ $tag.LinkTitle }}"
+    {{ end }}
+  ]
+  {{ end }}
+}
+</script>
+
+{{/* Additional structured data for articles */}}
+{{ if .IsPage }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "{{ .Title }}",
+  "description": "{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}",
+  "url": "{{ .Permalink }}",
+  "datePublished": "{{ .PublishDate.Format "2006-01-02T15:04:05Z07:00" }}",
+  "dateModified": "{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}",
+  {{ with .Site.Params.author }}
+  "author": {
+    "@type": "Person",
+    "name": "{{ . }}"
+  },
+  {{ end }}
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ .Site.Title }}",
+    "url": "{{ .Site.BaseURL }}"
+    {{ with index $images 0 }},
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ . }}"
+    }
+    {{ end }}
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ .Permalink }}"
+  }
+  {{ with index $images 0 }},
+  "image": {
+    "@type": "ImageObject",
+    "url": "{{ . }}"
+  }
+  {{ end }}
+  {{ if .GetTerms "tags" }},
+  "keywords": [
+    {{ range $i, $tag := (.GetTerms "tags") }}
+      {{ if $i }}, {{ end }}"{{ $tag.LinkTitle }}"
+    {{ end }}
+  ]
+  {{ end }}
+}
+</script>
+{{ end }}
+
+{{/* Breadcrumb structured data for non-home pages */}}
+{{ if not .IsHome }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "{{ .Site.Title }}",
+      "item": "{{ .Site.BaseURL }}"
+    }
+    {{ if .Section }},
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "{{ .Section | title }}",
+      "item": "{{ .Site.BaseURL }}{{ .Section }}/"
+    }
+    {{ end }}
+    {{ if .IsPage }},
+    {
+      "@type": "ListItem",
+      "position": {{ if .Section }}3{{ else }}2{{ end }},
+      "name": "{{ .Title }}",
+      "item": "{{ .Permalink }}"
+    }
+    {{ end }}
+  ]
+}
+</script>
+{{ end }}

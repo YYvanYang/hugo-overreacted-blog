@@ -1,0 +1,223 @@
+baseURL = 'https://example.org/'
+languageCode = 'en-us'
+title = 'Hugo Overreacted Blog'
+
+# Hugo version requirements
+[module]
+  [module.hugoVersion]
+    extended = true
+    min = "0.128.0"
+
+# Goldmark renderer configuration with typographer extensions
+[markup]
+  defaultMarkdownHandler = 'goldmark'
+  
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true  # Allow HTML passthrough for enhanced content
+    
+    [markup.goldmark.extensions]
+      typographer = true  # Enhanced typography and punctuation
+      strikethrough = true
+      linkify = true
+      linkifyProtocol = 'https'
+    
+    [markup.goldmark.parser]
+      autoHeadingID = true
+      autoHeadingIDType = 'github'
+      wrapStandAloneImageWithinParagraph = false
+      [markup.goldmark.parser.attribute]
+        block = true
+        title = true
+
+  # Syntax highlighting configuration
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = true
+    lineNos = false
+    lineNumbersInTable = false
+    noClasses = false
+    style = 'github'  # Default style, overridden by theme-specific CSS
+    tabWidth = 2
+    wrapperClass = 'highlight'
+
+# Enhanced build configuration for asset processing and optimization
+[build]
+  writeStats = true  # Generate hugo_stats.json for Tailwind class detection
+  
+  [build.buildStats]
+    enable = true
+    disableClasses = false
+    disableIDs = false
+    disableTags = false
+  
+  # Comprehensive cache busters for asset processing pipeline
+  [[build.cachebusters]]
+    source = "hugo_stats\\.json"
+    target = "css"
+  
+  [[build.cachebusters]]
+    source = "(postcss|tailwind)\\.config\\.(js|ts)"
+    target = "css"
+  
+  [[build.cachebusters]]
+    source = "assets/.*\\.(js|ts|jsx|tsx)"
+    target = "js"
+  
+  # Additional cache busters for comprehensive asset optimization
+  [[build.cachebusters]]
+    source = "assets/css/.*\\.css"
+    target = "css"
+  
+  [[build.cachebusters]]
+    source = "assets/js/.*\\.(js|ts)"
+    target = "js"
+  
+  [[build.cachebusters]]
+    source = "layouts/.*\\.html"
+    target = "(css|js)"
+  
+  [[build.cachebusters]]
+    source = "assets/.*\\.(.*)$"
+    target = "$1"
+
+# Module mounts for hugo_stats.json asset processing
+[[module.mounts]]
+  source = "content"
+  target = "content"
+
+[[module.mounts]]
+  source = "static"
+  target = "static"
+
+[[module.mounts]]
+  source = "layouts"
+  target = "layouts"
+
+[[module.mounts]]
+  source = "data"
+  target = "data"
+
+[[module.mounts]]
+  source = "assets"
+  target = "assets"
+
+[[module.mounts]]
+  source = "i18n"
+  target = "i18n"
+
+[[module.mounts]]
+  source = "archetypes"
+  target = "archetypes"
+
+# Mount hugo_stats.json for Tailwind processing
+[[module.mounts]]
+  source = "hugo_stats.json"
+  target = "assets/hugo_stats.json"
+
+# Site parameters
+[params]
+  description = "A minimalist Hugo blog template inspired by overreacted.io"
+  author = "Blog Author"
+  
+  # SEO and social media configuration
+  images = ["images/site-feature-image.jpg"]  # Default site images for Open Graph
+  keywords = ["hugo", "blog", "minimalist", "overreacted", "static site"]
+  
+  [params.social]
+    twitter = ""  # Twitter handle without @
+    github = ""
+    facebook_admin = ""  # Facebook Page Admin ID for Domain Insights
+
+# Menu configuration
+[menu]
+  [[menu.main]]
+    name = "Home"
+    pageRef = "/"
+    weight = 10
+  
+  [[menu.main]]
+    name = "About"
+    pageRef = "/about"
+    weight = 20
+  
+  # Example external link with security attributes
+  [[menu.main]]
+    name = "Hugo"
+    url = "https://gohugo.io/"
+    weight = 30
+    [menu.main.params]
+      rel = "external noopener noreferrer"
+      target = "_blank"
+  
+  # Example nested menu structure
+  [[menu.main]]
+    name = "Resources"
+    pageRef = "/resources"
+    weight = 40
+  
+  [[menu.main]]
+    name = "Documentation"
+    pageRef = "/resources/docs"
+    parent = "Resources"
+    weight = 1
+  
+  [[menu.main]]
+    name = "Examples"
+    pageRef = "/resources/examples"
+    parent = "Resources"
+    weight = 2
+
+# Taxonomies
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+# Privacy settings
+[privacy]
+  [privacy.disqus]
+    disable = true
+  [privacy.googleAnalytics]
+    disable = true
+
+# Security settings
+[security]
+  enableInlineShortcodes = false
+  [security.exec]
+    allow = ['^(dart-)?sass(-embedded)?$', '^go$', '^npx$', '^postcss$', '^tailwindcss$']
+  [security.funcs]
+    getenv = ['^HUGO_', '^CI$']
+  [security.http]
+    methods = ['(?i)GET|POST']
+    urls = ['.*']
+
+# Asset processing and optimization configuration
+[minify]
+  disableCSS = false
+  disableHTML = false
+  disableJS = false
+  disableJSON = false
+  disableSVG = false
+  disableXML = false
+  
+  [minify.tdewolff]
+    [minify.tdewolff.css]
+      keepCSS2 = true
+      precision = 0
+    [minify.tdewolff.html]
+      keepComments = false
+      keepConditionalComments = true
+      keepDefaultAttrVals = true
+      keepDocumentTags = true
+      keepEndTags = true
+      keepQuotes = false
+      keepWhitespace = false
+    [minify.tdewolff.js]
+      keepVarNames = false
+      precision = 0
+    [minify.tdewolff.json]
+      precision = 0
+    [minify.tdewolff.svg]
+      precision = 0
+    [minify.tdewolff.xml]
+      keepWhitespace = false

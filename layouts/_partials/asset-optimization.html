@@ -1,0 +1,50 @@
+{{/* Asset Optimization Partial */}}
+{{/* Enhanced asset processing pipeline with bundling, minification, and integrity hashes */}}
+{{/* Usage: {{ partial "asset-optimization.html" (dict "type" "css" "assets" $assets "bundle" "main.css") }} */}}
+
+{{ $type := .type }}
+{{ $assets := .assets }}
+{{ $bundleName := .bundle | default "bundle" }}
+{{ $defer := .defer | default false }}
+{{ $async := .async | default false }}
+
+{{ if $assets }}
+  {{ if hugo.IsDevelopment }}
+    {{/* Development: Individual assets for better debugging */}}
+    {{ if eq $type "css" }}
+      {{ range $assets }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}" media="all">
+      {{ end }}
+    {{ else if eq $type "js" }}
+      {{ range $assets }}
+        {{ $opts := dict "minify" false "sourceMap" "external" }}
+        {{ with . | js.Build $opts }}
+          <script src="{{ .RelPermalink }}"{{ if $defer }} defer{{ end }}{{ if $async }} async{{ end }}></script>
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ else }}
+    {{/* Production: Bundle, optimize, and secure assets */}}
+    {{ if eq $type "css" }}
+      {{ $bundled := $assets | resources.Concat (printf "css/%s" $bundleName) }}
+      {{ with $bundled | minify | fingerprint "sha256" }}
+        {{/* Critical CSS with preload for performance */}}
+        <link rel="preload" href="{{ .RelPermalink }}" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+        <noscript><link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></noscript>
+      {{ end }}
+    {{ else if eq $type "js" }}
+      {{ $bundled := $assets | resources.Concat (printf "js/%s" $bundleName) }}
+      {{ $opts := dict 
+        "minify" true 
+        "sourceMap" "none"
+        "target" "es2018"
+        "platform" "browser"
+        "drop" "console"
+      }}
+      {{ with $bundled | js.Build $opts | fingerprint "sha256" }}
+        <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"{{ if $defer }} defer{{ end }}{{ if $async }} async{{ end }}></script>
+        <link rel="preload" href="{{ .RelPermalink }}" as="script" crossorigin="anonymous">
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}

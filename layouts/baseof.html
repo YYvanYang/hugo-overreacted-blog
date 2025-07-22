@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="{{ or site.Language.LanguageCode site.Language.Lang "en" }}" dir="{{ or site.Language.LanguageDirection "ltr" }}">
+<head>
+  {{ partial "head.html" . }}
+</head>
+
+<body class="min-h-screen flex flex-col transition-fast" style="background-color: var(--color-bg); color: var(--color-text);">
+  {{/* Skip navigation links for accessibility - Requirement 7.1 */}}
+  <div class="skip-links">
+    <a href="#main-content" class="skip-link">
+      Skip to main content
+    </a>
+    <a href="#navigation" class="skip-link">
+      Skip to navigation
+    </a>
+    <a href="#footer" class="skip-link">
+      Skip to footer
+    </a>
+  </div>
+  
+  {{/* Header with proper landmark - Requirement 7.3 */}}
+  {{ block "header" . }}
+    {{ partial "header.html" . }}
+  {{ end }}
+  
+  {{/* Main content with prose container - Requirements 1.1, 1.2, 1.5, 7.1, 7.3 */}}
+  <main id="main-content" role="main" class="flex-1 container" style="padding-top: var(--space-8); padding-bottom: var(--space-8);" aria-label="Main content">
+    <div class="prose">
+      {{ block "main" . }}{{ end }}
+    </div>
+  </main>
+  
+  {{/* Footer with proper landmark - Requirement 7.3 */}}
+  {{ block "footer" . }}
+    {{ partial "footer.html" . }}
+  {{ end }}
+  
+  {{/* Live region for announcements - Requirement 7.3 */}}
+  <div id="live-region" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+  
+  {{/* JavaScript */}}
+  {{ partial "scripts.html" . }}
+</body>
+</html>

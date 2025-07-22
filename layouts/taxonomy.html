@@ -1,0 +1,31 @@
+{{ define "main" }}
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8 text-gray-900 dark:text-gray-100">
+      {{ .Title }}
+    </h1>
+    
+    {{ with .Content }}
+      <div class="prose prose-lg dark:prose-invert mb-8">
+        {{ . }}
+      </div>
+    {{ end }}
+    
+    {{ if .Data.Terms }}
+      <div class="space-y-6">
+        {{ range .Data.Terms.ByCount }}
+          <div class="border-b border-gray-200 dark:border-gray-700 pb-4">
+            <h2 class="text-xl font-semibold mb-2">
+              <a href="{{ .Page.RelPermalink }}" class="text-blue-600 dark:text-blue-400 hover:underline">
+                {{ .Page.LinkTitle }}
+              </a>
+              <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">({{ .Count }})</span>
+            </h2>
+            {{ with .Page.Params.description }}
+              <p class="text-gray-600 dark:text-gray-300">{{ . }}</p>
+            {{ end }}
+          </div>
+        {{ end }}
+      </div>
+    {{ end }}
+  </div>
+{{ end }}

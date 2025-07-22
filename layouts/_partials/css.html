@@ -1,0 +1,88 @@
+{{/* CSS processing partial for Tailwind CSS v4.1 integration */}}
+{{/* Enhanced asset processing pipeline with optimization and cache busting */}}
+{{/* This partial should be called with templates.Defer for proper asset processing */}}
+
+{{ with resources.Get "css/main.css" }}
+  {{ $opts := dict "minify" (not hugo.IsDevelopment) }}
+  {{ with . | css.TailwindCSS $opts }}
+    {{ if hugo.IsDevelopment }}
+      {{/* Development: Simple link without fingerprinting for faster builds */}}
+      <link rel="stylesheet" href="{{ .RelPermalink }}" media="all">
+    {{ else }}
+      {{/* Production: Full optimization pipeline with minification, fingerprinting, and integrity */}}
+      {{ with . | minify | fingerprint "sha256" }}
+        {{/* Preload critical CSS with integrity hash for security */}}
+        <link rel="preload" href="{{ .RelPermalink }}" as="style" onload="this.onload=null;this.rel='stylesheet'" integrity="{{ .Data.Integrity }}" crossorigin="anonymous">
+        <noscript><link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous"></noscript>
+        {{/* Add resource hints for better performance */}}
+        {{ $parsedURL := .RelPermalink | urls.Parse }}
+        {{ if $parsedURL.Host }}
+          <link rel="dns-prefetch" href="{{ printf "%s://%s" $parsedURL.Scheme $parsedURL.Host }}">
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{/* Syntax highlighting CSS for light and dark themes with optimization */}}
+{{/* Enhanced processing pipeline with minification and integrity hashes */}}
+{{ with resources.Get "css/chroma-light.css" }}
+  {{ if hugo.IsDevelopment }}
+    <link rel="stylesheet" href="{{ .RelPermalink }}" media="all" id="chroma-light-css">
+  {{ else }}
+    {{ with . | minify | fingerprint "sha256" }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}" media="all" integrity="{{ .Data.Integrity }}" crossorigin="anonymous" id="chroma-light-css">
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ with resources.Get "css/chroma-dark.css" }}
+  {{ if hugo.IsDevelopment }}
+    <link rel="stylesheet" href="{{ .RelPermalink }}" media="not all" id="chroma-dark-css">
+  {{ else }}
+    {{ with . | minify | fingerprint "sha256" }}
+      <link rel="stylesheet" href="{{ .RelPermalink }}" media="not all" integrity="{{ .Data.Integrity }}" crossorigin="anonymous" id="chroma-dark-css">
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{/* Add critical CSS for above-the-fold content to prevent layout shift */}}
+<style>
+  /* Critical CSS for skip link and basic layout */
+  .skip-link {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  
+  .skip-link:focus {
+    position: absolute;
+    left: 6px;
+    top: 7px;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    z-index: 999999;
+  }
+  
+  /* Ensure proper focus indicators for accessibility */
+  *:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  
+  /* Basic responsive typography */
+  html {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  
+  @media (min-width: 768px) {
+    html {
+      font-size: 18px;
+    }
+  }
+</style>

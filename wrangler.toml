@@ -1,0 +1,59 @@
+# Cloudflare Workers configuration for Hugo Overreacted Blog
+# This configuration sets up static asset serving from the public directory
+# with custom 404 page handling and HTTPS certificate support
+
+name = "hugo-overreacted-blog"
+compatibility_date = "2025-01-22"
+main = "src/index.js"
+
+# Static assets configuration
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "404-page"
+html_handling = "auto-trailing-slash"
+
+# Development server configuration
+[dev]
+port = 8787
+local_protocol = "http"
+upstream_protocol = "https"
+ip = "127.0.0.1"
+
+# Production environment configuration
+[env.production]
+name = "hugo-overreacted-blog-prod"
+# Custom domain configuration - uncomment and replace with your actual domain
+# routes = [
+#   { pattern = "yourdomain.com/*", custom_domain = true }
+# ]
+
+# Staging environment configuration  
+[env.staging]
+name = "hugo-overreacted-blog-staging"
+workers_dev = true
+
+# Build configuration
+[build]
+command = "hugo --minify --gc"
+cwd = "."
+watch_dir = ["content", "layouts", "assets", "static", "hugo.toml"]
+
+# Variables for different environments
+[vars]
+ENVIRONMENT = "development"
+SITE_URL = "https://hugo-overreacted-blog.workers.dev"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+SITE_URL = "https://yourdomain.com"  # Replace with your actual domain
+
+[env.staging.vars]
+ENVIRONMENT = "staging"
+SITE_URL = "https://hugo-overreacted-blog-staging.workers.dev"
+
+# Upload source maps for better debugging
+upload_source_maps = true
+
+# Keep dashboard settings
+keep_vars = false

@@ -1,0 +1,55 @@
+{{ define "main" }}
+  {{/* Section page for content organization - Requirements 4.1, 4.2 */}}
+  <header class="mb-8">
+    <h1 class="text-3xl font-bold mb-4">
+      {{ .Title }}
+    </h1>
+    
+    {{/* Section description/content if available */}}
+    {{ if .Content }}
+      <div class="text-lg opacity-80 mb-6">
+        {{ .Content }}
+      </div>
+    {{ end }}
+  </header>
+  
+  {{/* List pages in this section ordered by date (newest first) - Requirements 4.1, 4.2 */}}
+  {{ $pages := .Pages.ByDate.Reverse }}
+  {{ if $pages }}
+    {{ range $pages }}
+      <article class="mb-8">
+        <header class="mb-4">
+          <h2 class="text-xl font-semibold mb-2">
+            <a href="{{ .RelPermalink }}" class="hover:underline">
+              {{ .LinkTitle }}
+            </a>
+          </h2>
+          
+          {{/* Publication date - Requirements 4.2 */}}
+          {{ if not .Date.IsZero }}
+            <time datetime="{{ .Date.Format "2006-01-02" }}" class="text-sm opacity-70">
+              {{ .Date.Format "January 2, 2006" }}
+            </time>
+          {{ end }}
+        </header>
+        
+        {{/* Page summary if available */}}
+        {{ if .Summary }}
+          <div class="mb-4">
+            {{ .Summary }}
+          </div>
+          
+          {{ if .Truncated }}
+            <p>
+              <a href="{{ .RelPermalink }}" class="hover:underline">
+                Read more →
+              </a>
+            </p>
+          {{ end }}
+        {{ end }}
+      </article>
+    {{ end }}
+  {{ else }}
+    <p>No content found in this section.</p>
+  {{ end }}
+{{ end }}

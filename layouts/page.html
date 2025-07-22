@@ -1,0 +1,29 @@
+{{ define "main" }}
+  {{/* Individual post/page rendering - Requirements 4.3 */}}
+  <article>
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold mb-4">
+        {{ .Title }}
+      </h1>
+      
+      {{/* Publication date for posts */}}
+      {{ if not .Date.IsZero }}
+        <time datetime="{{ .Date.Format "2006-01-02" }}" class="text-sm opacity-70 mb-4 block">
+          {{ .Date.Format "January 2, 2006" }}
+        </time>
+      {{ end }}
+      
+      {{/* Description if available */}}
+      {{ if .Params.description }}
+        <div class="text-lg opacity-80 mb-6">
+          {{ .Params.description }}
+        </div>
+      {{ end }}
+    </header>
+    
+    {{/* Main content with proper typography - Requirements 1.5 */}}
+    <div class="content">
+      {{ .Content }}
+    </div>
+  </article>
+{{ end }}
