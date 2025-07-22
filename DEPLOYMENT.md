@@ -186,6 +186,46 @@ Access analytics through:
    - Check SSL/TLS encryption mode (Full or Full Strict)
    - Ensure domain is active in Cloudflare
 
+4. **Hugo Build Command Issues in CI/CD**
+   
+   **Problem**: When using GitHub Actions with wrangler-action, you may encounter the error:
+   ```
+   [custom build] /bin/sh: 1: hugo: not found
+   ✘ [ERROR] Error: Command failed with exit code 127: hugo --minify --gc
+   ```
+   
+   **Root Cause**: The `--no-bundle` flag only skips Wrangler's internal bundling process but does NOT skip custom build commands defined in the `[build]` section of `wrangler.toml`.
+   
+   **Solution**: Use `preCommands` in wrangler-action to temporarily disable the build section during CI deployment:
+   
+   ```yaml
+   - name: Deploy to Cloudflare Workers
+     uses: cloudflare/wrangler-action@v3
+     with:
+       apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+       accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+       wranglerVersion: "latest"
+       preCommands: |
+         # Temporarily disable build section for CI deployment
+         sed -i 's/^\[build\]$/# [build]/' wrangler.toml
+         sed -i 's/^command = /# command = /' wrangler.toml
+         sed -i 's/^cwd = /# cwd = /' wrangler.toml
+         sed -i 's/^watch_dir = /# watch_dir = /' wrangler.toml
+       command: deploy --env staging
+       workingDirectory: "."
+   ```
+   
+   **Why This Works**:
+   - Hugo build is already handled by GitHub Actions in earlier steps
+   - `preCommands` runs before deployment and temporarily comments out the build configuration
+   - Original `wrangler.toml` remains unchanged for local development
+   - `wrangler dev` continues to work normally for local development
+   
+   **Key Wrangler Flags Explained**:
+   - `--no-bundle`: Skips Wrangler's internal bundling (esbuild) but NOT custom build commands
+   - `--env <name>`: Specifies deployment environment (staging/production)
+   - Custom build commands in `[build]` section always execute unless the section is disabled
+
 ### Debug Commands
 
 ```bash
