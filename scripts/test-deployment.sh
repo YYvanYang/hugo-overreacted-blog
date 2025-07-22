@@ -15,7 +15,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration with CI/CD environment detection
-SITE_URL=${SITE_URL:-"https://hugo-overreacted-blog-staging.workers.dev"}
+SITE_URL=${SITE_URL:-"https://hugo-overreacted-blog-staging.zjlgdx.workers.dev"}
 TIMEOUT=30
 MAX_RETRIES=3
 CI=${CI:-false}

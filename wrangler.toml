@@ -56,7 +56,7 @@ SITE_URL = "https://yourdomain.com"  # Replace with your actual domain
 
 [env.staging.vars]
 ENVIRONMENT = "staging"
-SITE_URL = "https://hugo-overreacted-blog-staging.workers.dev"
+SITE_URL = "https://hugo-overreacted-blog-staging.zjlgdx.workers.dev"
 
 # Upload source maps for better debugging
 upload_source_maps = true

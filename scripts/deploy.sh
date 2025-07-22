@@ -99,7 +99,7 @@ if [ "$ENVIRONMENT" = "production" ]; then
 else
     export HUGO_ENV=development
     export NODE_ENV=development
-    EXPECTED_URL="https://hugo-overreacted-blog-staging.workers.dev"
+    EXPECTED_URL="https://hugo-overreacted-blog-staging.zjlgdx.workers.dev"
 fi
 
 # Pre-deployment checks

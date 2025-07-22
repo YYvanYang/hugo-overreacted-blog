@@ -29,7 +29,7 @@ npx wrangler login
 npm run deploy:staging
 ```
 
-Your site will be available at: `https://hugo-overreacted-blog-staging.workers.dev`
+Your site will be available at: `https://hugo-overreacted-blog-staging.zjlgdx.workers.dev`
 
 ## Deployment Environments
 
@@ -40,7 +40,7 @@ Your site will be available at: `https://hugo-overreacted-blog-staging.workers.d
 
 ### Staging
 - **Command**: `npm run deploy:staging`
-- **URL**: `https://hugo-overreacted-blog-staging.workers.dev`
+- **URL**: `https://hugo-overreacted-blog-staging.zjlgdx.workers.dev`
 - **Use**: Pre-production testing
 
 ### Production

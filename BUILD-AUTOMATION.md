@@ -42,7 +42,7 @@ The workflow is triggered by:
 - **Runs on**: `develop` branch or manual dispatch (staging)
 - **Purpose**: Deploy to staging environment
 - **Environment**: `staging`
-- **URL**: `https://hugo-overreacted-blog-staging.workers.dev`
+- **URL**: `https://hugo-overreacted-blog-staging.zjlgdx.workers.dev`
 - **Steps**:
   - Download build artifacts
   - Deploy using Wrangler CLI
@@ -197,7 +197,7 @@ CI=true GITHUB_ACTIONS=true ./scripts/test-system.sh
 **Usage**:
 ```bash
 # Test staging deployment
-SITE_URL="https://hugo-overreacted-blog-staging.workers.dev" ./scripts/test-deployment.sh
+SITE_URL="https://hugo-overreacted-blog-staging.zjlgdx.workers.dev" ./scripts/test-deployment.sh
 
 # Test production deployment
 SITE_URL="https://hugo-overreacted-blog.workers.dev" ./scripts/test-deployment.sh
@@ -293,7 +293,7 @@ Key configurations:
 ### Staging Environment
 - **Hugo Environment**: `development`
 - **Cloudflare Environment**: `staging`
-- **URL**: `https://hugo-overreacted-blog-staging.workers.dev`
+- **URL**: `https://hugo-overreacted-blog-staging.zjlgdx.workers.dev`
 - **Purpose**: Testing and validation
 
 ### Production Environment

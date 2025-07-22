@@ -158,7 +158,7 @@ jobs:
     name: Deploy to Staging
     environment:
       name: staging
-      url: https://hugo-overreacted-blog-staging.workers.dev
+      url: https://hugo-overreacted-blog-staging.zjlgdx.workers.dev
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -182,7 +182,7 @@ jobs:
           echo "Testing staging deployment..."
           sleep 10  # Wait for deployment to propagate
           
-          STAGING_URL="https://hugo-overreacted-blog-staging.workers.dev"
+          STAGING_URL="https://hugo-overreacted-blog-staging.zjlgdx.workers.dev"
           
           # Test main page
           if curl -f -s "$STAGING_URL" > /dev/null; then
@@ -203,7 +203,7 @@ jobs:
         run: |
           echo "## Staging Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "- **Environment**: Staging" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL**: https://hugo-overreacted-blog-staging.workers.dev" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: https://hugo-overreacted-blog-staging.zjlgdx.workers.dev" >> $GITHUB_STEP_SUMMARY
           echo "- **Status**: ✅ Deployed successfully" >> $GITHUB_STEP_SUMMARY
           echo "- **Build**: ${{ needs.build.outputs.hugo-version }} at ${{ needs.build.outputs.build-time }}" >> $GITHUB_STEP_SUMMARY
 
@@ -312,7 +312,7 @@ jobs:
             TEST_URL="https://hugo-overreacted-blog.workers.dev"
             ENV_NAME="production"
           else
-            TEST_URL="https://hugo-overreacted-blog-staging.workers.dev"
+            TEST_URL="https://hugo-overreacted-blog-staging.zjlgdx.workers.dev"
             ENV_NAME="staging"
           fi
           
