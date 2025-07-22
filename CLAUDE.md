@@ -1,0 +1,162 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is a Hugo Overreacted Blog - a minimalist blog template inspired by overreacted.io, built with Hugo static site generator, Tailwind CSS v4.1, and deployed on Cloudflare Workers. The project features a sophisticated build pipeline with asset optimization, dual-theme support, and comprehensive CI/CD automation.
+
+## Essential Commands
+
+### Development Commands
+- `npm run dev` - Start Hugo development server with drafts and future posts
+- `npm run serve` - Start basic Hugo server  
+- `npm run build:development` - Build for development with source maps
+- `npm run build:production` - Build for production with full optimization
+- `npm run clean` - Clean all build artifacts and cache
+
+### Testing and Validation
+- `npm run test:system` - Validate system requirements and project structure
+- `npm run test:deployment` - Test deployed site (connectivity, performance, SEO)
+- `npm run validate` - Validate build output and critical files
+- `npm run version:check` - Check tool versions (Hugo, Node.js, npm)
+
+### Deployment Commands
+- `npm run deploy:staging` - Deploy to Cloudflare Workers staging
+- `npm run deploy:production` - Deploy to Cloudflare Workers production
+- `npm run deploy:dry-run` - Test deployment configuration without deploying
+
+### Wrangler Commands
+- `wrangler dev --env staging` - Start local Cloudflare Workers development
+- `wrangler deploy --env staging` - Deploy to staging environment
+- `wrangler deploy --env production` - Deploy to production environment
+
+## Build System Architecture
+
+### Asset Processing Pipeline
+The build system uses a custom script `scripts/build-assets.sh` that orchestrates:
+
+1. **Hugo Build**: Static site generation with enhanced configuration
+2. **Tailwind CSS Processing**: CSS optimization with Tailwind v4.1 CSS-first approach
+3. **JavaScript Processing**: Minification with Terser
+4. **Asset Optimization**: Fingerprinting, integrity hashes, compression
+
+### Environment-Specific Builds
+- **Development**: Source maps enabled, no minification, debug output
+- **Production**: Full optimization, minification, asset fingerprinting
+- **CI**: Automated builds with validation and testing
+
+### Wrangler Configuration Strategy
+The project uses a sophisticated Wrangler setup to handle different environments:
+
+- **Top-level `[build]`**: Used for local development only
+- **`[env.staging.build]` & `[env.production.build]`**: Empty sections to prevent build inheritance
+- **CI/CD Strategy**: GitHub Actions builds static files, Wrangler deploys pre-built artifacts
+
+This prevents "Hugo not installed" errors in CI while maintaining local development functionality.
+
+## Content Architecture
+
+### Content Structure
+- `content/posts/` - Blog posts with frontmatter (title, date, draft, tags, categories, description)
+- `content/` - Static pages (about.md, etc.)
+- `content/_index.md` - Homepage content
+
+### Layout System
+- `layouts/baseof.html` - Base template with essential HTML structure
+- `layouts/home.html` - Homepage template
+- `layouts/page.html` - Single page template
+- `layouts/section.html` - Section list template
+- `layouts/_partials/` - Reusable components (head, header, footer, SEO)
+- `layouts/_markup/` - Markdown render hooks for enhanced content processing
+
+### Theme and Styling
+- `assets/css/main.css` - Main stylesheet with Tailwind CSS v4.1 `@theme` configuration
+- `assets/css/chroma-light.css` & `assets/css/chroma-dark.css` - Syntax highlighting themes
+- `assets/js/theme-switcher.js` - Theme switching with no-flash loading
+- `assets/js/accessibility.js` - Accessibility enhancements
+
+## Configuration Files
+
+### Hugo Configuration (`hugo.toml`)
+Key features:
+- Hugo v0.128.0+ extended required
+- Goldmark renderer with typographer extensions
+- Comprehensive cache busters for asset processing
+- Module mounts including `hugo_stats.json` for Tailwind
+- Security settings allowing specific external commands
+- Menu configuration with nested structure support
+
+### Package Configuration (`package.json`)
+- Node.js v18+ and npm v9+ required
+- Comprehensive script collection for all development tasks
+- Key dependencies: Tailwind CSS v4.1, PostCSS, Terser, Wrangler
+
+### Wrangler Configuration (`wrangler.toml`)
+- Static asset serving from `public/` directory
+- Environment-specific configurations without build inheritance
+- Variables for different deployment environments
+- Custom 404 page handling and HTTPS configuration
+
+## CI/CD Pipeline
+
+### GitHub Actions Workflow (`.github/workflows/deploy.yml`)
+Multi-job pipeline:
+1. **Build Job**: Installs Hugo, Node.js dependencies, builds static files
+2. **Deploy Staging**: Deploys to staging on `develop` branch
+3. **Deploy Production**: Deploys to production on `main` branch  
+4. **Validation**: Comprehensive testing of deployed sites
+
+### Required Secrets
+- `CLOUDFLARE_API_TOKEN` - Cloudflare API authentication
+- `CLOUDFLARE_ACCOUNT_ID` - Cloudflare account identifier
+
+## Development Patterns
+
+### Creating New Content
+```bash
+hugo new posts/my-new-post.md
+```
+
+### Theme Customization
+- Modify `@theme` directive in `assets/css/main.css` for colors
+- Edit templates in `layouts/` for structural changes
+- Use Tailwind utility classes following the project's CSS-first approach
+
+### Asset Processing
+- CSS files automatically processed through Tailwind and PostCSS
+- JavaScript files minified in production builds
+- Images served from `static/images/` with lazy loading support
+
+### Testing Strategy
+- System validation before builds
+- Build output validation after builds  
+- Comprehensive deployment testing including performance, SEO, and accessibility
+- Local testing with `npm run dev` before deployment
+
+## Performance Considerations
+
+- Asset fingerprinting and cache busting for optimal caching
+- Minification and compression in production builds
+- Lazy loading for images and non-critical assets
+- CDN distribution via Cloudflare Workers global network
+- Integrity hashes for security and cache validation
+
+## Common Issues and Solutions
+
+### Build Failures
+1. Run `npm run test:system` to validate requirements
+2. Check Hugo version (must be v0.128.0+ extended)
+3. Clean build artifacts: `npm run clean`
+4. Rebuild: `npm run build:development`
+
+### Deployment Issues  
+1. Verify Wrangler authentication: `wrangler whoami`
+2. Test deployment configuration: `npm run deploy:dry-run`
+3. Check Cloudflare Workers logs for runtime errors
+
+### Development Environment
+- Ensure Hugo extended version is installed
+- Node.js v18+ and npm v9+ required
+- Run `npm install` to install all dependencies
+- Use `npm run version:check` to verify tool versions
