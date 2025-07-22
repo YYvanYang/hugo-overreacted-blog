@@ -21,7 +21,7 @@ on:
 
 # Environment variables
 env:
-  HUGO_VERSION: "0.128.0"
+  HUGO_VERSION: "0.148.1"
   NODE_VERSION: "20"
   GO_VERSION: "1.21"
 
@@ -64,8 +64,8 @@ jobs:
           echo "Hugo version: $INSTALLED_VERSION"
           
           # Verify minimum version requirement
-          if [[ "$INSTALLED_VERSION" < "v0.128.0" ]]; then
-            echo "Error: Hugo version $INSTALLED_VERSION is below minimum requirement v0.128.0"
+          if [[ "$INSTALLED_VERSION" < "v${{ env.HUGO_VERSION }}" ]]; then
+            echo "Error: Hugo version $INSTALLED_VERSION is below minimum requirement v${{ env.HUGO_VERSION }}"
             exit 1
           fi
 
