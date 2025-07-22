@@ -33,11 +33,11 @@ name = "hugo-overreacted-blog-prod"
 name = "hugo-overreacted-blog-staging"
 workers_dev = true
 
-# Build configuration
-[build]
-command = "hugo --minify --gc"
-cwd = "."
-watch_dir = ["content", "layouts", "assets", "static", "hugo.toml"]
+# Build configuration - handled by GitHub Actions
+# [build]
+# command = "hugo --minify --gc"  
+# cwd = "."
+# watch_dir = ["content", "layouts", "assets", "static", "hugo.toml"]
 
 # Variables for different environments
 [vars]
