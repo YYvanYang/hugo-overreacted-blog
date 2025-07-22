@@ -174,12 +174,6 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "latest"
-          preCommands: |
-            # Temporarily disable build section for CI deployment
-            sed -i 's/^\[build\]$/# [build]/' wrangler.toml
-            sed -i 's/^command = /# command = /' wrangler.toml
-            sed -i 's/^cwd = /# cwd = /' wrangler.toml
-            sed -i 's/^watch_dir = /# watch_dir = /' wrangler.toml
           command: deploy --env staging
           workingDirectory: "."
 
@@ -237,12 +231,6 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "latest"
-          preCommands: |
-            # Temporarily disable build section for CI deployment
-            sed -i 's/^\[build\]$/# [build]/' wrangler.toml
-            sed -i 's/^command = /# command = /' wrangler.toml
-            sed -i 's/^cwd = /# cwd = /' wrangler.toml
-            sed -i 's/^watch_dir = /# watch_dir = /' wrangler.toml
           command: deploy --env production
           workingDirectory: "."
 

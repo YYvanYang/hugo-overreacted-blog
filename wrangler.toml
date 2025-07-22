@@ -28,14 +28,20 @@ name = "hugo-overreacted-blog-prod"
 #   { pattern = "yourdomain.com/*", custom_domain = true }
 # ]
 
+# Production build configuration
+[env.production.build]
+command = "npm run build:production"
+cwd = "."
+watch_dir = ["content", "layouts", "assets", "static", "hugo.toml"]
+
 # Staging environment configuration  
 [env.staging]
 name = "hugo-overreacted-blog-staging"
 workers_dev = true
 
-# Build configuration
-[build]
-command = "hugo --minify --gc"
+# Staging build configuration
+[env.staging.build]
+command = "npm run build:development"
 cwd = "."
 watch_dir = ["content", "layouts", "assets", "static", "hugo.toml"]
 
