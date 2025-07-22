@@ -76,16 +76,6 @@ jobs:
           npm ci
           echo "Node.js dependencies installed successfully"
 
-      - name: Verify Tailwind CSS installation
-        run: |
-          # Check if tailwindcss is available via npx
-          npx tailwindcss --version || echo "npx tailwindcss failed"
-          # Check local installation
-          ls -la node_modules/@tailwindcss/cli/bin/ || echo "CLI binary not found"
-          # Check if it's in package.json
-          cat package.json | grep -A5 -B5 tailwindcss
-          echo "Tailwind CSS verification completed"
-
       - name: Cache Hugo modules
         uses: actions/cache@v4
         with:
@@ -98,6 +88,7 @@ jobs:
         if: github.ref != 'refs/heads/main'
         run: |
           echo "Building for development environment..."
+          export PATH="./node_modules/.bin:$PATH"
           HUGO_ENV=development npm run build:development
           echo "Development build completed"
 
@@ -105,6 +96,7 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
         run: |
           echo "Building for production environment..."
+          export PATH="./node_modules/.bin:$PATH"
           HUGO_ENV=production npm run build:production
           echo "Production build completed"
 
