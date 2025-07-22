@@ -20,7 +20,7 @@ local_protocol = "http"
 upstream_protocol = "https"
 ip = "127.0.0.1"
 
-# Production environment configuration
+# Production environment configuration (no build - CI handles it)
 [env.production]
 name = "hugo-overreacted-blog-prod"
 # Custom domain configuration - uncomment and replace with your actual domain
@@ -28,19 +28,19 @@ name = "hugo-overreacted-blog-prod"
 #   { pattern = "yourdomain.com/*", custom_domain = true }
 # ]
 
-# Production build configuration
+# Disable build for production (CI already built)
 [env.production.build]
-command = "npm run build:production"
-cwd = "."
-watch_dir = ["content", "layouts", "assets", "static", "hugo.toml"]
 
-# Staging environment configuration  
+# Staging environment configuration (no build - CI handles it)
 [env.staging]
 name = "hugo-overreacted-blog-staging"
 workers_dev = true
 
-# Staging build configuration
+# Disable build for staging (CI already built)
 [env.staging.build]
+
+# Local development build configuration
+[build]
 command = "npm run build:development"
 cwd = "."
 watch_dir = ["content", "layouts", "assets", "static", "hugo.toml"]
