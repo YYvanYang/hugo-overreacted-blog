@@ -194,11 +194,17 @@ Templates are located in `layouts/`:
    - `CLOUDFLARE_API_TOKEN`: Your Cloudflare API token
    - `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare account ID
 
-2. **Push to deploy**
+2. **Set up repository variables**
+   - Go to **Settings** → **Secrets and variables** → **Actions** → **Variables** tab
+   - Add the following variables:
+     - `STAGING_URL`: Your staging environment URL (e.g., `https://your-blog-staging.workers.dev`)
+     - `PRODUCTION_URL`: Your production environment URL (e.g., `https://your-blog.workers.dev`)
+
+3. **Push to deploy**
    - Push to `develop` branch → deploys to staging
    - Push to `main` branch → deploys to production
 
-3. **Manual deployment**
+4. **Manual deployment**
    - Go to Actions tab in GitHub
    - Run "Build and Deploy Hugo Blog" workflow
    - Select environment (staging/production)
@@ -438,6 +444,13 @@ hugo-overreacted-blog/
    ```bash
    wrangler whoami
    npm run deploy:dry-run
+   ```
+
+5. **GitHub Actions Variables Not Set**
+   Error: `The template is not valid. Unrecognized named-value: 'vars'`
+   ```bash
+   # Go to GitHub repository Settings → Secrets and variables → Actions → Variables
+   # Add STAGING_URL and PRODUCTION_URL variables
    ```
 
 ### Debug Commands
