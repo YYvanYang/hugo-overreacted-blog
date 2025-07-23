@@ -56,13 +56,24 @@ jobs:
         # 在生产构建时，将 PRODUCTION_URL 环境变量传递给构建脚本
         run: |
           npm ci
-          # Fix TailwindCSS v4 CLI compatibility - Hugo's css.TailwindCSS expects 'tailwindcss' command
-          # Create symlink from @tailwindcss/cli to tailwindcss for npx compatibility
-          if [ -f "node_modules/.bin/@tailwindcss/cli" ]; then
-            echo "Creating TailwindCSS CLI symlink for Hugo compatibility..."
-            ln -sf @tailwindcss/cli node_modules/.bin/tailwindcss
+          # Verify TailwindCSS v4 CLI installation - Hugo's css.TailwindCSS expects 'npx tailwindcss' to work
+          echo "Checking TailwindCSS CLI installation..."
+          if [ -f "node_modules/.bin/tailwindcss" ]; then
+            echo "✅ TailwindCSS CLI found: $(ls -la node_modules/.bin/tailwindcss)"
+            echo "Testing npx tailwindcss..."
+            npx tailwindcss --version
+          elif [ -f "node_modules/@tailwindcss/cli/dist/index.mjs" ]; then
+            echo "📝 TailwindCSS v4 CLI package found, creating symlink..."
+            ln -sf ../@tailwindcss/cli/dist/index.mjs node_modules/.bin/tailwindcss
+            echo "✅ Created symlink: $(ls -la node_modules/.bin/tailwindcss)"
+            npx tailwindcss --version
           else
-            echo "Warning: @tailwindcss/cli not found - TailwindCSS CLI may not work"
+            echo "❌ TailwindCSS CLI not found - checking installation..."
+            echo "Installed packages:"
+            ls -la node_modules/.bin/ | grep -i tailwind || echo "No tailwind binaries found"
+            echo "Package contents:"
+            ls -la node_modules/@tailwindcss/ 2>/dev/null || echo "No @tailwindcss directory"
+            exit 1
           fi
           if [[ "${{ github.ref }}" == "refs/heads/main" || \
                 ( "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.environment }}" == "production" ) ]]; then

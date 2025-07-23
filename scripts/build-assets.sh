@@ -99,31 +99,39 @@ echo -e "${BLUE}🎨 Verifying TailwindCSS CLI...${NC}"
 TAILWIND_CLI_PATH="./node_modules/.bin/tailwindcss"
 TAILWIND_V4_CLI_PATH="./node_modules/.bin/@tailwindcss/cli"
 
-# Fix TailwindCSS v4 CLI compatibility - Hugo's css.TailwindCSS expects 'tailwindcss' command
-if [ -f "$TAILWIND_V4_CLI_PATH" ] && [ ! -f "$TAILWIND_CLI_PATH" ]; then
-    echo -e "${YELLOW}📝 TailwindCSS v4 detected - creating CLI symlink for Hugo compatibility${NC}"
-    ln -sf @tailwindcss/cli "./node_modules/.bin/tailwindcss"
-    echo -e "${GREEN}✅ Created symlink: @tailwindcss/cli -> tailwindcss${NC}"
-fi
-
+# Verify TailwindCSS v4 CLI installation - Hugo's css.TailwindCSS expects 'npx tailwindcss' to work
 if [ -f "$TAILWIND_CLI_PATH" ]; then
     echo -e "${GREEN}✅ TailwindCSS CLI found locally: $TAILWIND_CLI_PATH${NC}"
-    # Add local bin to PATH to ensure it's used
-    export PATH="$(pwd)/node_modules/.bin:$PATH"
-    
-    # Test if npx can find tailwindcss (with .npmrc config, this should work)
-    if npx --no-install tailwindcss --help >/dev/null 2>&1; then
-        echo -e "${GREEN}✅ TailwindCSS CLI accessible via npx${NC}"
-    else
-        echo -e "${YELLOW}⚠️ TailwindCSS CLI not accessible via npx${NC}"
-        echo "This may indicate an npm configuration issue. Check .npmrc file."
-        echo "Continuing with build - Hugo will attempt to find TailwindCSS CLI..."
+    # Show symlink details for debugging
+    if [ -L "$TAILWIND_CLI_PATH" ]; then
+        echo -e "${BLUE}🔗 Symlink target: $(readlink $TAILWIND_CLI_PATH)${NC}"
     fi
-    tailwindcss --version
+elif [ -f "node_modules/@tailwindcss/cli/dist/index.mjs" ]; then
+    echo -e "${YELLOW}📝 TailwindCSS v4 CLI package found, creating symlink for Hugo compatibility${NC}"
+    ln -sf ../@tailwindcss/cli/dist/index.mjs "./node_modules/.bin/tailwindcss"
+    echo -e "${GREEN}✅ Created symlink: $(ls -la $TAILWIND_CLI_PATH)${NC}"
 else
     echo -e "${RED}❌ TailwindCSS CLI not found in node_modules${NC}"
+    echo "Checking installation details:"
+    echo "  - tailwindcss binary: $TAILWIND_CLI_PATH"
+    echo "  - @tailwindcss/cli package: node_modules/@tailwindcss/cli/dist/index.mjs"
+    ls -la node_modules/.bin/ | grep -i tailwind || echo "  - No tailwind binaries found"
+    ls -la node_modules/@tailwindcss/ 2>/dev/null || echo "  - No @tailwindcss directory"
     echo "Please ensure TailwindCSS is installed: npm install -D tailwindcss @tailwindcss/cli"
     exit 1
+fi
+
+# Add local bin to PATH to ensure it's used
+export PATH="$(pwd)/node_modules/.bin:$PATH"
+
+# Test if npx can find tailwindcss (with .npmrc config, this should work)
+if npx --no-install tailwindcss --help >/dev/null 2>&1; then
+    echo -e "${GREEN}✅ TailwindCSS CLI accessible via npx${NC}"
+    tailwindcss --version
+else
+    echo -e "${YELLOW}⚠️ TailwindCSS CLI not accessible via npx${NC}"
+    echo "This may indicate an npm configuration issue. Check .npmrc file."
+    echo "Continuing with build - Hugo will attempt to find TailwindCSS CLI..."
 fi
 
 # Generate Chroma CSS files for syntax highlighting if they don't exist
