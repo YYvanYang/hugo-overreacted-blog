@@ -2,7 +2,7 @@
 
 A minimalist Hugo blog template inspired by [overreacted.io](https://overreacted.io) with modern development practices, automated deployment, and comprehensive CI/CD support.
 
-![Hugo](https://img.shields.io/badge/Hugo-v0.128.0+-FF4088?style=flat&logo=hugo)
+![Hugo](https://img.shields.io/badge/Hugo-v0.148.1+-FF4088?style=flat&logo=hugo)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.1+-38B2AC?style=flat&logo=tailwind-css)
 ![Node.js](https://img.shields.io/badge/Node.js-v18+-339933?style=flat&logo=node.js)
 ![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Workers-Deployed-F38020?style=flat&logo=cloudflare)
@@ -22,7 +22,7 @@ A minimalist Hugo blog template inspired by [overreacted.io](https://overreacted
 - Global CDN distribution via Cloudflare Workers
 
 ### 🛠 **Developer Experience**
-- Modern Hugo v0.128.0+ with extended features
+- Modern Hugo v0.148.1+ with extended features
 - Tailwind CSS v4.1 with CSS-first configuration
 - Comprehensive build automation
 - CI/CD pipeline with GitHub Actions
@@ -53,7 +53,7 @@ A minimalist Hugo blog template inspired by [overreacted.io](https://overreacted
 
 ### Prerequisites
 
-- [Hugo](https://gohugo.io/installation/) v0.128.0+ (extended version)
+- [Hugo](https://gohugo.io/installation/) v0.148.1+ (extended version)
 - [Node.js](https://nodejs.org/) v18.0.0+
 - [npm](https://www.npmjs.com/) v9.0.0+
 - [Git](https://git-scm.com/)
@@ -418,7 +418,7 @@ hugo-overreacted-blog/
 1. **Hugo Version Mismatch**
    ```bash
    hugo version
-   # Ensure v0.128.0+ extended
+   # Ensure v0.148.1+ extended
    ```
 
 2. **Node.js Dependencies**

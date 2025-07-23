@@ -64,10 +64,10 @@ echo -e "${BLUE}🔧 Testing system dependencies...${NC}"
 # Check Hugo
 if command_exists hugo; then
     HUGO_VERSION=$(hugo version | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | sed 's/v//')
-    if version_compare "$HUGO_VERSION" "0.128.0"; then
+    if version_compare "$HUGO_VERSION" "0.148.1"; then
         print_test_result "Hugo Version" "PASS" "Version $HUGO_VERSION (meets requirement)"
     else
-        print_test_result "Hugo Version" "FAIL" "Version $HUGO_VERSION (requires 0.128.0+)"
+        print_test_result "Hugo Version" "FAIL" "Version $HUGO_VERSION (requires 0.148.1+)"
     fi
     
     # Check if Hugo extended

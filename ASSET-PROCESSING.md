@@ -281,7 +281,7 @@ Tracking for:
 ### Common Issues
 
 1. **Build failures**
-   - Check Hugo version (minimum 0.128.0)
+   - Check Hugo version (minimum 0.148.1)
    - Verify Node.js dependencies
    - Review asset paths
 

@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 # Configuration with CI/CD environment detection
 HUGO_ENV=${HUGO_ENV:-production}
 NODE_ENV=${NODE_ENV:-production}
-HUGO_VERSION_MIN="0.128.0"
+HUGO_VERSION_MIN="0.148.1"
 NODE_VERSION_MIN="18.0.0"
 CI=${CI:-false}
 GITHUB_ACTIONS=${GITHUB_ACTIONS:-false}

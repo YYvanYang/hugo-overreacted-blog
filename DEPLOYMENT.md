@@ -7,7 +7,7 @@ This guide covers deploying the Hugo Overreacted Blog to Cloudflare Workers with
 1. **Cloudflare Account**: Sign up at [cloudflare.com](https://cloudflare.com)
 2. **Domain (Optional)**: For custom domain deployment
 3. **Node.js**: Version 18+ required
-4. **Hugo**: Extended version 0.128.0+ required
+4. **Hugo**: Extended version 0.148.1+ required
 
 ## Quick Start
 

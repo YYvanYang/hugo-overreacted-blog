@@ -18,7 +18,7 @@ The blog template follows a static site generation architecture with the followi
 
 ### Technology Stack
 
-- **Hugo**: v0.128.0+ (extended version required)
+- **Hugo**: v0.148.1+ (extended version required)
 - **Tailwind CSS**: v4.1+ with CSS-first configuration
 - **Node.js**: v20+ for build tools
 - **Deployment**: Cloudflare Workers with static assets
@@ -295,7 +295,7 @@ draft: false
 
 ### 1. Hugo Version Requirements
 
-- Minimum Hugo v0.128.0 (extended)
+- Minimum Hugo v0.148.1 (extended)
 - Modern template system features
 - Enhanced asset pipeline support
 

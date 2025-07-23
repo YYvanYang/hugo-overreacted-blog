@@ -3,7 +3,7 @@
 # with custom 404 page handling and HTTPS certificate support
 
 name = "hugo-overreacted-blog"
-compatibility_date = "2025-01-22"
+compatibility_date = "2025-07-22"
 main = "src/index.js"
 
 # Static assets configuration

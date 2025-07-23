@@ -17,7 +17,7 @@ The fixes will be implemented across multiple layers of the Hugo blog stack:
 
 ### Technology Stack
 
-- **Hugo**: v0.128.0+ for template processing and static site generation
+- **Hugo**: v0.148.1+ for template processing and static site generation
 - **Cloudflare Workers**: For security header implementation and static asset serving
 - **HTML5**: Modern meta tag standards and semantic markup
 - **JavaScript**: Proper asset loading and theme switching functionality

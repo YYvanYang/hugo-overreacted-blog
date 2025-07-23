@@ -6,7 +6,7 @@ title = 'Hugo Overreacted Blog'
 [module]
   [module.hugoVersion]
     extended = true
-    min = "0.128.0"
+    min = "0.148.1"
 
 # Goldmark renderer configuration with typographer extensions
 [markup]

@@ -31,7 +31,7 @@ The workflow is triggered by:
   - Checkout repository with full history
   - Setup Node.js (v20) with npm cache
   - Setup Go (v1.21) for Hugo
-  - Setup Hugo (v0.128.0 extended)
+  - Setup Hugo (v0.148.1 extended)
   - Verify Hugo version requirements
   - Install Node.js dependencies
   - Build site (development or production)
@@ -83,7 +83,7 @@ Required secrets in GitHub repository:
 
 **Features**:
 - Environment detection (CI/CD support)
-- Hugo version validation (minimum v0.128.0)
+- Hugo version validation (minimum v0.148.1)
 - Node.js dependency management
 - Tailwind CSS compilation
 - Syntax highlighting CSS generation
@@ -260,7 +260,7 @@ npm run wrangler:whoami    # Check Wrangler authentication
 ### Hugo Configuration: `hugo.toml`
 
 Key configurations for CI/CD:
-- Hugo version requirements (minimum v0.128.0 extended)
+- Hugo version requirements (minimum v0.148.1 extended)
 - Build stats generation for Tailwind CSS
 - Asset optimization settings
 - Cache busting configuration
@@ -343,7 +343,7 @@ Key configurations:
 ### Common Issues
 
 1. **Hugo Version Mismatch**
-   - Ensure Hugo v0.128.0+ extended is installed
+   - Ensure Hugo v0.148.1+ extended is installed
    - Check `hugo version` output
 
 2. **Node.js Dependencies**

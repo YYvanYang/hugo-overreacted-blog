@@ -125,4 +125,4 @@ This project aims to create a minimalist, high-performance Hugo blog template th
 2. WHEN menus are defined THEN the system SHALL support hierarchical navigation through menu configuration
 3. WHEN markup is processed THEN the system SHALL enable Goldmark extensions and proper syntax highlighting
 4. WHEN Tailwind integration is active THEN the system SHALL properly configure build stats and cache busting
-5. WHEN Hugo version requirements are set THEN the system SHALL enforce minimum version 0.128.0 with extended features
+5. WHEN Hugo version requirements are set THEN the system SHALL enforce minimum version 0.148.1 with extended features

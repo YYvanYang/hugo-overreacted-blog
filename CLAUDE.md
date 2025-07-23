@@ -80,7 +80,7 @@ This prevents "Hugo not installed" errors in CI while maintaining local developm
 
 ### Hugo Configuration (`hugo.toml`)
 Key features:
-- Hugo v0.128.0+ extended required
+- Hugo v0.148.1+ extended required
 - Goldmark renderer with typographer extensions
 - Comprehensive cache busters for asset processing
 - Module mounts including `hugo_stats.json` for Tailwind
@@ -146,7 +146,7 @@ hugo new posts/my-new-post.md
 
 ### Build Failures
 1. Run `npm run test:system` to validate requirements
-2. Check Hugo version (must be v0.128.0+ extended)
+2. Check Hugo version (must be v0.148.1+ extended)
 3. Clean build artifacts: `npm run clean`
 4. Rebuild: `npm run build:development`
 

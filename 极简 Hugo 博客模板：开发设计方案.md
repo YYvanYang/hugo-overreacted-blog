@@ -268,7 +268,7 @@ theme = "my-theme" # 假设您将此模板作为主题使用
 [module]
   [module.hugoVersion]
     extended = true # 必须使用 extended 版本
-    min = "0.128.0"
+    min = "0.148.1"
   [[module.mounts]]
     # 将 hugo_stats.json 挂载到虚拟文件系统，供 Tailwind 读取
     source = "hugo_stats.json"
