@@ -22,7 +22,7 @@
   - Ensure robots.txt serves with correct content-type header
   - _Requirements: 3.1, 3.2, 3.3, 3.4_
 
-- [ ] 4. Fix JavaScript asset loading and integration
+- [x] 4. Fix JavaScript asset loading and integration
   - **Use Context7 MCP**: Research Hugo asset pipeline and JavaScript loading best practices
   - Update head partial to properly reference JavaScript assets using Hugo's asset pipeline
   - Add theme-switcher.js script tag with proper integrity hashes and loading strategies

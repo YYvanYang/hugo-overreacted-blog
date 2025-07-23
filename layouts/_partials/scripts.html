@@ -1,14 +1,8 @@
-{{/* JavaScript partial with enhanced asset processing pipeline */}}
-{{/* Optimized bundling, minification, and integrity hashes for security */}}
+{{/* JavaScript partial with Hugo asset pipeline processing */}}
+{{/* Bundle JavaScript assets for optimal loading and deployment */}}
 
 {{/* Collect JavaScript assets for bundling */}}
 {{ $jsAssets := slice }}
-
-{{/* Accessibility enhancement script - Requirements 7.1, 7.2, 7.3, 7.4, 7.5 */}}
-{{ $accessibilityScript := resources.Get "js/accessibility.js" }}
-{{ if $accessibilityScript }}
-  {{ $jsAssets = $jsAssets | append $accessibilityScript }}
-{{ end }}
 
 {{/* Theme switcher script */}}
 {{ $themeScript := resources.Get "js/theme-switcher.js" }}
@@ -16,81 +10,33 @@
   {{ $jsAssets = $jsAssets | append $themeScript }}
 {{ end }}
 
-{{/* Process JavaScript assets using the asset optimization partial */}}
+{{/* Accessibility enhancement script - Requirements 7.1, 7.2, 7.3, 7.4, 7.5 */}}
+{{ $accessibilityScript := resources.Get "js/accessibility.js" }}
+{{ if $accessibilityScript }}
+  {{ $jsAssets = $jsAssets | append $accessibilityScript }}
+{{ end }}
+
+{{/* Process and bundle JavaScript assets */}}
 {{ if $jsAssets }}
-  {{ partial "asset-optimization.html" (dict 
-    "type" "js" 
-    "assets" $jsAssets 
-    "bundle" "main.js" 
-    "defer" true
-  ) }}
+  {{ $bundled := $jsAssets | resources.Concat "js/main.js" }}
+  {{ $opts := dict 
+    "minify" (not hugo.IsDevelopment)
+    "sourceMap" (cond hugo.IsDevelopment "external" "")
+    "target" "es2018"
+    "platform" "browser"
+  }}
+  {{ with $bundled | js.Build $opts }}
+    {{ if hugo.IsDevelopment }}
+      <script src="{{ .RelPermalink }}" defer></script>
+    {{ else }}
+      {{ with . | fingerprint "sha256" }}
+        <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" crossorigin="anonymous" defer></script>
+      {{ end }}
+    {{ end }}
+  {{ end }}
 {{ else }}
-  {{/* Fallback inline script if theme-switcher.js is not found */}}
+  {{/* Fallback inline script if no JavaScript assets found */}}
   <script>
-    console.warn('Theme switcher script not found, using fallback');
-    // Basic fallback theme toggle
-    (function() {
-      const themeToggle = document.getElementById('theme-toggle');
-      if (!themeToggle) return;
-      
-      const sunIcon = themeToggle.querySelector('.sun-icon');
-      const moonIcon = themeToggle.querySelector('.moon-icon');
-      
-      function updateThemeIcon(theme) {
-        if (theme === 'dark') {
-          sunIcon?.classList.add('hidden');
-          moonIcon?.classList.remove('hidden');
-          themeToggle.setAttribute('aria-label', 'Switch to light mode');
-          themeToggle.setAttribute('aria-pressed', 'true');
-        } else {
-          sunIcon?.classList.remove('hidden');
-          moonIcon?.classList.add('hidden');
-          themeToggle.setAttribute('aria-label', 'Switch to dark mode');
-          themeToggle.setAttribute('aria-pressed', 'false');
-        }
-      }
-      
-      // Initialize icon based on current theme
-      const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-      updateThemeIcon(currentTheme);
-      
-      // Theme toggle event listener
-      themeToggle.addEventListener('click', function() {
-        const isDark = document.documentElement.classList.contains('dark');
-        const newTheme = isDark ? 'light' : 'dark';
-        
-        // Toggle theme class
-        document.documentElement.classList.toggle('dark');
-        
-        // Update localStorage
-        try {
-          localStorage.setItem('theme-preference', newTheme);
-        } catch (error) {
-          console.warn('Failed to store theme preference:', error);
-        }
-        
-        // Update icon and attributes
-        updateThemeIcon(newTheme);
-        
-        // Update data attribute and color-scheme
-        document.documentElement.setAttribute('data-theme', newTheme);
-        document.documentElement.style.colorScheme = newTheme;
-        
-        // Announce theme change to screen readers
-        const announcement = document.createElement('div');
-        announcement.setAttribute('aria-live', 'polite');
-        announcement.setAttribute('aria-atomic', 'true');
-        announcement.className = 'sr-only';
-        announcement.textContent = `Switched to ${newTheme} mode`;
-        document.body.appendChild(announcement);
-        
-        // Remove announcement after screen reader has time to read it
-        setTimeout(() => {
-          if (document.body.contains(announcement)) {
-            document.body.removeChild(announcement);
-          }
-        }, 1000);
-      });
-    })();
+    console.warn('No JavaScript assets found');
   </script>
 {{ end }}

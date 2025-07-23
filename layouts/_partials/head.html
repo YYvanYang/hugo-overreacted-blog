@@ -36,6 +36,8 @@
   {{ partial "css.html" . }}
 {{ end }}
 
+{{/* JavaScript assets loaded via scripts partial - moved to body for better performance */}}
+
 {{/* Theme detection script - must be inline to prevent flash */}}
 <script>
   // No-flash theme detection and application before page render

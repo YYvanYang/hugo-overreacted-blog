@@ -8,6 +8,8 @@
     "build:production": "HUGO_ENV=production NODE_ENV=production ./scripts/build-assets.sh",
     "build:development": "HUGO_ENV=development NODE_ENV=development ./scripts/build-assets.sh",
     "build:ci": "CI=true ./scripts/build-assets.sh",
+    "js:lint": "echo 'JavaScript linting placeholder - Hugo handles JS processing'",
+    "js:test": "echo 'JavaScript testing placeholder'",
     "dev": "hugo server --buildDrafts --buildFuture --disableFastRender",
     "serve": "hugo server",
     "clean": "rm -rf public resources/_gen tmp/hugo_cache",
