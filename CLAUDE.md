@@ -158,11 +158,25 @@ hugo new posts/my-new-post.md
 
 ### TailwindCSS CLI Issues
 **Problem**: `binary with name "tailwindcss" not found using npx`
-**Cause**: Hugo's `css.TailwindCSS` function with `minify: true` requires TailwindCSS CLI to be accessible via `npx`
-**Solution**: The CI/CD pipeline automatically creates a global symlink for TailwindCSS CLI
-- In CI: `sudo ln -sf $(pwd)/node_modules/.bin/tailwindcss /usr/local/bin/tailwindcss`
-- Local development: Ensure TailwindCSS is globally installed or use `npm run dev`
-- Verification: `npx tailwindcss --version` should work
+**Root Cause**: TailwindCSS v4 architectural changes in CLI structure
+- Hugo's `css.TailwindCSS` function with `minify: true` expects `npx tailwindcss` to work
+- TailwindCSS v4 moved CLI to separate `@tailwindcss/cli` package
+- The main `tailwindcss` v4 package doesn't create `node_modules/.bin/tailwindcss` executable
+
+**Environment-Specific Behavior**:
+- **Development** (`HUGO_ENV=development`): Uses `minify: false` - doesn't call TailwindCSS CLI ✅
+- **Production** (`HUGO_ENV=production`): Uses `minify: true` - requires TailwindCSS CLI ❌
+
+**Solutions Applied**:
+1. **npm Configuration Fix**: `.npmrc` with `install-links=false` for npm 10.x compatibility
+2. **Symlink Creation**: Automatic symlink from `@tailwindcss/cli` to `tailwindcss` for Hugo compatibility
+   - **CI/CD**: GitHub Actions creates symlink after `npm ci`
+   - **Local Development**: `build-assets.sh` creates symlink automatically
+3. **Package Requirements**: Both `tailwindcss` and `@tailwindcss/cli` must be installed
+
+**Verification Commands**:
+- `npx tailwindcss --version` should work after symlink creation
+- `ls -la node_modules/.bin/tailwindcss` should show symlink to `@tailwindcss/cli`
 
 ### Deployment Issues  
 1. Verify Wrangler authentication: `wrangler whoami`

@@ -56,6 +56,14 @@ jobs:
         # 在生产构建时，将 PRODUCTION_URL 环境变量传递给构建脚本
         run: |
           npm ci
+          # Fix TailwindCSS v4 CLI compatibility - Hugo's css.TailwindCSS expects 'tailwindcss' command
+          # Create symlink from @tailwindcss/cli to tailwindcss for npx compatibility
+          if [ -f "node_modules/.bin/@tailwindcss/cli" ]; then
+            echo "Creating TailwindCSS CLI symlink for Hugo compatibility..."
+            ln -sf @tailwindcss/cli node_modules/.bin/tailwindcss
+          else
+            echo "Warning: @tailwindcss/cli not found - TailwindCSS CLI may not work"
+          fi
           if [[ "${{ github.ref }}" == "refs/heads/main" || \
                 ( "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.environment }}" == "production" ) ]]; then
             echo "Building for production..."

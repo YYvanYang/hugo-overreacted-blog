@@ -97,6 +97,14 @@ fi
 # Verifying TailwindCSS CLI...
 echo -e "${BLUE}🎨 Verifying TailwindCSS CLI...${NC}"
 TAILWIND_CLI_PATH="./node_modules/.bin/tailwindcss"
+TAILWIND_V4_CLI_PATH="./node_modules/.bin/@tailwindcss/cli"
+
+# Fix TailwindCSS v4 CLI compatibility - Hugo's css.TailwindCSS expects 'tailwindcss' command
+if [ -f "$TAILWIND_V4_CLI_PATH" ] && [ ! -f "$TAILWIND_CLI_PATH" ]; then
+    echo -e "${YELLOW}📝 TailwindCSS v4 detected - creating CLI symlink for Hugo compatibility${NC}"
+    ln -sf @tailwindcss/cli "./node_modules/.bin/tailwindcss"
+    echo -e "${GREEN}✅ Created symlink: @tailwindcss/cli -> tailwindcss${NC}"
+fi
 
 if [ -f "$TAILWIND_CLI_PATH" ]; then
     echo -e "${GREEN}✅ TailwindCSS CLI found locally: $TAILWIND_CLI_PATH${NC}"
