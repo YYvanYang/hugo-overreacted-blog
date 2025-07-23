@@ -87,8 +87,8 @@ jobs:
     uses: ./.github/workflows/reusable-deploy.yml
     with:
       environment_name: staging
+      # ✅ FIX: Use env context directly (this should work)
       environment_url: ${{ env.STAGING_URL }}
-      # 传递唯一的工件名称
       artifact_name: hugo-build-${{ github.run_id }}
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -102,8 +102,8 @@ jobs:
     uses: ./.github/workflows/reusable-deploy.yml
     with:
       environment_name: production
+      # ✅ FIX: Use env context directly (this should work)
       environment_url: ${{ env.PRODUCTION_URL }}
-      # 传递唯一的工件名称
       artifact_name: hugo-build-${{ github.run_id }}
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
