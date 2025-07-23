@@ -19,7 +19,7 @@
 4.  **错误的生产环境链接**: 生产环境的构建没有动态修改 Hugo 的 `baseURL`，导致生成的 Sitemap 和 SEO Canonical URL 指向了 Staging 环境的域名，这会严重影响 SEO。
 5.  **并发构建冲突风险**: 在重构方案的早期版本中，构建工件 (artifact) 被命名为静态的 `hugo-build`，这会在并发构建（例如，`main` 和 `develop` 分支同时推送）时导致工件被覆盖，从而部署错误的版本。
 6.  **隐式依赖**: 测试脚本 (`test-deployment.sh`) 依赖 `bc` 命令来进行浮点数比较，这在某些极简环境中可能不存在，导致脚本失败。
-7.  **工作流文件语法错误**: 在调用可复用工作流时，由于 `with` 块中对 `env` 上下文的错误引用，导致工作流文件无效。
+7.  **工作流文件语法错误**: 在调用可复用工作流时，由于 `with` 块中对 `env` 上下文的错误引用，导致工作流文件无效，出现 `"Unrecognized named-value: 'env'"` 错误。
 
 ### 2\. 根本原因分析
 
@@ -29,7 +29,7 @@
 4.  **`baseURL` 错误**: `hugo.toml` 中硬编码了 Staging 的 `baseURL`。CI 的构建脚本 `build-assets.sh` 在执行生产构建时，没有传入 `--baseURL` 参数来覆盖这个默认值。
 5.  **并发冲突**: 工件名称没有使用工作流运行的唯一标识符（如 `github.run_id`），导致了命名冲突的风险。
 6.  **隐式依赖**: 测试脚本没有对其外部命令依赖（如 `bc`）进行存在性检查。
-7.  **语法错误**: 对 GitHub Actions 的上下文可用性规则理解不清，在 `with` 块中错误地尝试访问 `env` 上下文。
+7.  **语法错误**: 对 GitHub Actions 的上下文可用性规则理解不清，在可复用工作流的 `with` 块中错误地尝试访问 `env` 上下文。`env` 上下文在调用可复用工作流时不可用，应使用 `vars` 上下文（GitHub Variables）。
 
 ### 3\. 最佳解决方案
 
@@ -241,9 +241,6 @@ env:
   HUGO_VERSION: "0.148.1"
   NODE_VERSION: "20"
   GO_VERSION: "1.21"
-  STAGING_URL: "https://hugo-overreacted-blog-staging.zjlgdx.workers.dev"
-  # ⚠️ 重要: 请在项目上线时将此 URL 替换为您的真实生产域名
-  PRODUCTION_URL: "https://hugo-overreacted-blog.workers.dev"
 
 jobs:
   # 1. 构建作业
@@ -280,7 +277,7 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/heads/main" || \
                 ( "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.environment }}" == "production" ) ]]; then
             echo "Building for production..."
-            PRODUCTION_URL=${{ env.PRODUCTION_URL }} HUGO_ENV=production npm run build:production
+            PRODUCTION_URL=${{ vars.PRODUCTION_URL }} HUGO_ENV=production npm run build:production
           else
             echo "Building for staging/development..."
             HUGO_ENV=development npm run build:development
@@ -305,7 +302,7 @@ jobs:
     uses: ./.github/workflows/reusable-deploy.yml
     with:
       environment_name: staging
-      environment_url: ${{ env.STAGING_URL }}
+      environment_url: ${{ vars.STAGING_URL }}
       # 传递唯一的工件名称
       artifact_name: hugo-build-${{ github.run_id }}
     secrets:
@@ -320,7 +317,7 @@ jobs:
     uses: ./.github/workflows/reusable-deploy.yml
     with:
       environment_name: production
-      environment_url: ${{ env.PRODUCTION_URL }}
+      environment_url: ${{ vars.PRODUCTION_URL }}
       # 传递唯一的工件名称
       artifact_name: hugo-build-${{ github.run_id }}
     secrets:
@@ -390,11 +387,40 @@ jobs:
           SITE_URL=${{ inputs.environment_url }} ./scripts/test-deployment.sh
 ```
 
-### 5\. 官方参考文档
+### 5\. GitHub Variables 配置
+
+由于我们使用了 `vars` 上下文替代 `env` 上下文，需要在 GitHub 仓库中配置以下变量：
+
+#### 5.1. 配置步骤
+
+1. **进入仓库设置**
+   - 打开 GitHub 仓库页面
+   - 点击 **Settings** 标签
+   
+2. **配置 Variables**
+   - 在左侧菜单中找到 **Secrets and variables** → **Actions**
+   - 点击 **Variables** 标签
+   - 点击 **New repository variable** 按钮
+
+3. **添加必需的变量**
+   - `STAGING_URL`: Staging 环境的 URL (例如: `https://your-blog-staging.workers.dev`)
+   - `PRODUCTION_URL`: Production 环境的 URL (例如: `https://your-blog.workers.dev`)
+
+#### 5.2. 变量说明
+
+| 变量名 | 用途 | 示例值 |
+|--------|------|--------|
+| `STAGING_URL` | Staging 环境部署 URL | `https://hugo-overreacted-blog-staging.zjlgdx.workers.dev` |
+| `PRODUCTION_URL` | Production 环境部署 URL | `https://hugo-overreacted-blog.workers.dev` |
+
+**重要提示**: 这些变量将在工作流中通过 `${{ vars.STAGING_URL }}` 和 `${{ vars.PRODUCTION_URL }}` 访问，替代之前的 `${{ env.STAGING_URL }}` 和 `${{ env.PRODUCTION_URL }}`。
+
+### 6\. 官方参考文档
 
 以下是支持上述解决方案的官方文档链接：
 
   * **GitHub Actions - Reusable Workflows**: [https://docs.github.com/en/actions/using-workflows/reusing-workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows)
+  * **GitHub Actions - Variables**: [https://docs.github.com/en/actions/learn-github-actions/variables](https://docs.github.com/en/actions/learn-github-actions/variables)
   * **GitHub Actions - Environments**: [https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment)
   * **Hugo - Command Line Interface (CLI)**: [https://gohugo.io/commands/hugo/](https://gohugo.io/commands/hugo/) (关于 `--baseURL` 标志的用法)
   * **Hugo - Asset Pipeline with Tailwind CSS**: [https://gohugo.io/hugo-pipes/tailwind-css/](https://www.google.com/search?q=https://gohugo.io/hugo-pipes/tailwind-css/) (关于 Hugo 与 Tailwind 集成的配置)

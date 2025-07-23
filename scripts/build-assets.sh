@@ -85,7 +85,12 @@ if [ -f "package.json" ]; then
         # Use npm ci in CI environments for faster, reliable builds
         npm ci --prefer-offline --no-audit --silent
     else
-        npm ci --silent
+        # In development, use install instead of ci to preserve existing node_modules
+        if [ ! -d "node_modules" ]; then
+            npm ci --silent
+        else
+            echo "Using existing node_modules (use 'npm run clean' to rebuild)"
+        fi
     fi
 fi
 
@@ -97,6 +102,15 @@ if [ -f "$TAILWIND_CLI_PATH" ]; then
     echo -e "${GREEN}✅ TailwindCSS CLI found locally: $TAILWIND_CLI_PATH${NC}"
     # Add local bin to PATH to ensure it's used
     export PATH="$(pwd)/node_modules/.bin:$PATH"
+    
+    # Test if npx can find tailwindcss (with .npmrc config, this should work)
+    if npx --no-install tailwindcss --help >/dev/null 2>&1; then
+        echo -e "${GREEN}✅ TailwindCSS CLI accessible via npx${NC}"
+    else
+        echo -e "${YELLOW}⚠️ TailwindCSS CLI not accessible via npx${NC}"
+        echo "This may indicate an npm configuration issue. Check .npmrc file."
+        echo "Continuing with build - Hugo will attempt to find TailwindCSS CLI..."
+    fi
     tailwindcss --version
 else
     echo -e "${RED}❌ TailwindCSS CLI not found in node_modules${NC}"
