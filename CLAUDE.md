@@ -158,24 +158,29 @@ hugo new posts/my-new-post.md
 
 ### TailwindCSS CLI Issues
 **Problem**: `binary with name "tailwindcss" not found using npx`
-**Root Cause**: TailwindCSS v4 architectural changes in CLI structure
+**Root Cause**: Incorrect package installation location
+- TailwindCSS v4 packages were incorrectly installed in `devDependencies`
 - Hugo's `css.TailwindCSS` function with `minify: true` expects `npx tailwindcss` to work
-- TailwindCSS v4 moved CLI to separate `@tailwindcss/cli` package
-- The main `tailwindcss` v4 package doesn't create `node_modules/.bin/tailwindcss` executable
+- In production builds, `NODE_ENV=production` causes npm to skip `devDependencies`
 
-**Environment-Specific Behavior**:
+**Official Installation Method** (per https://tailwindcss.com/docs/installation/tailwind-cli):
+```bash
+npm install tailwindcss @tailwindcss/cli
+```
+**Note**: Install as regular `dependencies`, NOT `devDependencies`
+
+**Why This Matters**:
 - **Development** (`HUGO_ENV=development`): Uses `minify: false` - doesn't call TailwindCSS CLI ✅
 - **Production** (`HUGO_ENV=production`): Uses `minify: true` - requires TailwindCSS CLI ❌
+- **CI/Production**: `NODE_ENV=production` skips `devDependencies` installation
 
-**Solutions Applied**:
-1. **npm Configuration Fix**: `.npmrc` with `install-links=false` for npm 10.x compatibility
-2. **Symlink Creation**: Automatic symlink from `@tailwindcss/cli` to `tailwindcss` for Hugo compatibility
-   - **CI/CD**: GitHub Actions creates symlink after `npm ci`
-   - **Local Development**: `build-assets.sh` creates symlink automatically
-3. **Package Requirements**: Both `tailwindcss` and `@tailwindcss/cli` must be installed
+**Solution Applied**:
+1. **Correct Package Location**: Moved `tailwindcss` and `@tailwindcss/cli` to `dependencies` section
+2. **Symlink Handling**: Automatic symlink creation from `@tailwindcss/cli` to `tailwindcss` for Hugo compatibility
+3. **npm Configuration**: `.npmrc` with `install-links=false` for npm 10.x compatibility
 
 **Verification Commands**:
-- `npx tailwindcss --version` should work after symlink creation
+- `npx tailwindcss --version` should work in all environments
 - `ls -la node_modules/.bin/tailwindcss` should show symlink to `@tailwindcss/cli`
 
 ### Deployment Issues  

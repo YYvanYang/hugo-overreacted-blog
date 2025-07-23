@@ -85,8 +85,8 @@ if [ -f "package.json" ]; then
         # In GitHub Actions, skip reinstallation - dependencies already installed by workflow
         echo "Skipping npm install in GitHub Actions (dependencies already installed)"
     elif [ "$CI" = "true" ]; then
-        # Use npm ci in other CI environments, ensure devDependencies are included
-        npm ci --include=dev --prefer-offline --no-audit --silent
+        # Use npm ci in other CI environments for faster, reliable builds
+        npm ci --prefer-offline --no-audit --silent
     else
         # In development, use install instead of ci to preserve existing node_modules
         if [ ! -d "node_modules" ]; then

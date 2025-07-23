@@ -55,9 +55,7 @@ jobs:
       - name: Install Dependencies & Build
         # 在生产构建时，将 PRODUCTION_URL 环境变量传递给构建脚本
         run: |
-          # Install all dependencies including devDependencies for build tools
-          # Force devDependencies installation even in production CI environment
-          npm ci --include=dev
+          npm ci
           # Verify TailwindCSS v4 CLI installation - Hugo's css.TailwindCSS expects 'npx tailwindcss' to work
           echo "Checking TailwindCSS CLI installation..."
           if [ -f "node_modules/.bin/tailwindcss" ]; then
