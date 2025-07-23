@@ -23,9 +23,6 @@ env:
   HUGO_VERSION: "0.148.1"
   NODE_VERSION: "20"
   GO_VERSION: "1.21"
-  STAGING_URL: "https://hugo-overreacted-blog-staging.zjlgdx.workers.dev"
-  # ⚠️ 重要: 请在项目上线时将此 URL 替换为您的真实生产域名
-  PRODUCTION_URL: "https://hugo-overreacted-blog.workers.dev"
 
 jobs:
   # 1. 构建作业
@@ -62,7 +59,7 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/heads/main" || \
                 ( "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.environment }}" == "production" ) ]]; then
             echo "Building for production..."
-            PRODUCTION_URL=${{ env.PRODUCTION_URL }} HUGO_ENV=production npm run build:production
+            PRODUCTION_URL=${{ vars.PRODUCTION_URL }} HUGO_ENV=production npm run build:production
           else
             echo "Building for staging/development..."
             HUGO_ENV=development npm run build:development
@@ -87,8 +84,8 @@ jobs:
     uses: ./.github/workflows/reusable-deploy.yml
     with:
       environment_name: staging
-      # ✅ FIX: Use env context directly (this should work)
-      environment_url: ${{ env.STAGING_URL }}
+      # ✅ FIX: Use vars context which is available in reusable workflow calls
+      environment_url: ${{ vars.STAGING_URL }}
       artifact_name: hugo-build-${{ github.run_id }}
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -102,8 +99,8 @@ jobs:
     uses: ./.github/workflows/reusable-deploy.yml
     with:
       environment_name: production
-      # ✅ FIX: Use env context directly (this should work)
-      environment_url: ${{ env.PRODUCTION_URL }}
+      # ✅ FIX: Use vars context which is available in reusable workflow calls
+      environment_url: ${{ vars.PRODUCTION_URL }}
       artifact_name: hugo-build-${{ github.run_id }}
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

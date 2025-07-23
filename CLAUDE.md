@@ -111,6 +111,12 @@ Multi-job pipeline:
 - `CLOUDFLARE_API_TOKEN` - Cloudflare API authentication
 - `CLOUDFLARE_ACCOUNT_ID` - Cloudflare account identifier
 
+### Required Variables
+- `STAGING_URL` - Staging environment URL (e.g., `https://hugo-overreacted-blog-staging.zjlgdx.workers.dev`)
+- `PRODUCTION_URL` - Production environment URL (e.g., `https://hugo-overreacted-blog.workers.dev`)
+
+**Note**: Set these variables in GitHub repository Settings → Secrets and variables → Actions → Variables tab.
+
 ## Development Patterns
 
 ### Creating New Content
@@ -168,3 +174,11 @@ hugo new posts/my-new-post.md
 - Node.js v18+ and npm v9+ required
 - Run `npm install` to install all dependencies
 - Use `npm run version:check` to verify tool versions
+
+### GitHub Actions Reusable Workflow Issues
+**Problem**: `Unrecognized named-value: 'env'` when calling reusable workflows
+**Cause**: The `env` context is not available in the `with` parameter when calling reusable workflows
+**Solution**: Use `vars` context instead of `env` context
+- ❌ Wrong: `environment_url: ${{ env.STAGING_URL }}`
+- ✅ Correct: `environment_url: ${{ vars.STAGING_URL }}`
+- Variables must be set in GitHub repository Settings → Secrets and variables → Actions → Variables tab
