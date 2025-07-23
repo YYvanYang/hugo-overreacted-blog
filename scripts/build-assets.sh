@@ -89,6 +89,24 @@ if [ -f "package.json" ]; then
     fi
 fi
 
+# Verify TailwindCSS CLI availability
+echo -e "${BLUE}🎨 Verifying TailwindCSS CLI...${NC}"
+if command_exists tailwindcss; then
+    echo -e "${GREEN}✅ TailwindCSS CLI found: $(which tailwindcss)${NC}"
+    tailwindcss --version
+elif [ -f "./node_modules/.bin/tailwindcss" ]; then
+    echo -e "${GREEN}✅ TailwindCSS CLI found in node_modules${NC}"
+    ./node_modules/.bin/tailwindcss --version
+    if [ "$CI" = "true" ]; then
+        echo "Adding node_modules/.bin to PATH for CI environment"
+        export PATH="$(pwd)/node_modules/.bin:$PATH"
+    fi
+else
+    echo -e "${RED}❌ TailwindCSS CLI not found${NC}"
+    echo "Please ensure TailwindCSS is installed: npm install -D tailwindcss @tailwindcss/cli"
+    exit 1
+fi
+
 # Generate Chroma CSS files for syntax highlighting if they don't exist
 echo -e "${BLUE}🎨 Generating syntax highlighting CSS...${NC}"
 

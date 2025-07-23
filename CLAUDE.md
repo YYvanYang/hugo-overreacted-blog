@@ -150,6 +150,14 @@ hugo new posts/my-new-post.md
 3. Clean build artifacts: `npm run clean`
 4. Rebuild: `npm run build:development`
 
+### TailwindCSS CLI Issues
+**Problem**: `binary with name "tailwindcss" not found using npx`
+**Cause**: Hugo's `css.TailwindCSS` function with `minify: true` requires TailwindCSS CLI to be accessible via `npx`
+**Solution**: The CI/CD pipeline automatically creates a global symlink for TailwindCSS CLI
+- In CI: `sudo ln -sf $(pwd)/node_modules/.bin/tailwindcss /usr/local/bin/tailwindcss`
+- Local development: Ensure TailwindCSS is globally installed or use `npm run dev`
+- Verification: `npx tailwindcss --version` should work
+
 ### Deployment Issues  
 1. Verify Wrangler authentication: `wrangler whoami`
 2. Test deployment configuration: `npm run deploy:dry-run`
