@@ -95,12 +95,9 @@ TAILWIND_CLI_PATH="./node_modules/.bin/tailwindcss"
 
 if [ -f "$TAILWIND_CLI_PATH" ]; then
     echo -e "${GREEN}✅ TailwindCSS CLI found locally: $TAILWIND_CLI_PATH${NC}"
-    # Add local bin to PATH to ensure it's used
-    export PATH="$(pwd)/node_modules/.bin:$PATH"
-    tailwindcss --version
 else
     echo -e "${RED}❌ TailwindCSS CLI not found in node_modules${NC}"
-    echo "Please ensure TailwindCSS is installed: npm install -D tailwindcss @tailwindcss/cli"
+    echo "Please ensure TailwindCSS is installed: npm install tailwindcss @tailwindcss/cli"
     exit 1
 fi
 
