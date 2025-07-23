@@ -89,20 +89,17 @@ if [ -f "package.json" ]; then
     fi
 fi
 
-# Verify TailwindCSS CLI availability
+# Verifying TailwindCSS CLI...
 echo -e "${BLUE}🎨 Verifying TailwindCSS CLI...${NC}"
-if command_exists tailwindcss; then
-    echo -e "${GREEN}✅ TailwindCSS CLI found: $(which tailwindcss)${NC}"
+TAILWIND_CLI_PATH="./node_modules/.bin/tailwindcss"
+
+if [ -f "$TAILWIND_CLI_PATH" ]; then
+    echo -e "${GREEN}✅ TailwindCSS CLI found locally: $TAILWIND_CLI_PATH${NC}"
+    # Add local bin to PATH to ensure it's used
+    export PATH="$(pwd)/node_modules/.bin:$PATH"
     tailwindcss --version
-elif [ -f "./node_modules/.bin/tailwindcss" ]; then
-    echo -e "${GREEN}✅ TailwindCSS CLI found in node_modules${NC}"
-    ./node_modules/.bin/tailwindcss --version
-    if [ "$CI" = "true" ]; then
-        echo "Adding node_modules/.bin to PATH for CI environment"
-        export PATH="$(pwd)/node_modules/.bin:$PATH"
-    fi
 else
-    echo -e "${RED}❌ TailwindCSS CLI not found${NC}"
+    echo -e "${RED}❌ TailwindCSS CLI not found in node_modules${NC}"
     echo "Please ensure TailwindCSS is installed: npm install -D tailwindcss @tailwindcss/cli"
     exit 1
 fi
@@ -132,6 +129,11 @@ fi
 # Add environment-specific flags
 if [ "$HUGO_ENV" = "production" ]; then
     HUGO_FLAGS="$HUGO_FLAGS --environment production"
+    # If PRODUCTION_URL env var is set, use it to override the baseURL
+    if [ -n "$PRODUCTION_URL" ]; then
+        HUGO_FLAGS="$HUGO_FLAGS --baseURL $PRODUCTION_URL"
+        echo "Using production baseURL: $PRODUCTION_URL"
+    fi
     export HUGO_ENVIRONMENT=production
 else
     HUGO_FLAGS="$HUGO_FLAGS --environment development --buildDrafts --buildFuture"

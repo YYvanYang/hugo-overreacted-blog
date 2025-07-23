@@ -1,0 +1,55 @@
+name: Reusable Deploy Workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment_name:
+        required: true
+        type: string
+      environment_url:
+        required: true
+        type: string
+      artifact_name:
+        required: true
+        type: string
+    secrets:
+      CLOUDFLARE_API_TOKEN:
+        required: true
+      CLOUDFLARE_ACCOUNT_ID:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to ${{ inputs.environment_name }}
+    environment:
+      name: ${{ inputs.environment_name }}
+      url: ${{ inputs.environment_url }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          # 使用传入的唯一名称来下载正确的工件
+          name: ${{ inputs.artifact_name }}
+          path: public/
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "latest"
+          command: deploy --env ${{ inputs.environment_name }}
+
+      - name: Validate Deployment
+        run: |
+          echo "Waiting 15s for deployment to propagate..."
+          sleep 15
+          
+          echo "Running validation tests on ${{ inputs.environment_url }}"
+          # 将 SITE_URL 环境变量传递给测试脚本
+          SITE_URL=${{ inputs.environment_url }} ./scripts/test-deployment.sh

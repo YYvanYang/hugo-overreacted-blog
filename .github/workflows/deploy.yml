@@ -19,27 +19,24 @@ on:
           - staging
           - production
 
-# Environment variables
 env:
   HUGO_VERSION: "0.148.1"
   NODE_VERSION: "20"
   GO_VERSION: "1.21"
   STAGING_URL: "https://hugo-overreacted-blog-staging.zjlgdx.workers.dev"
+  # ⚠️ 重要: 请在项目上线时将此 URL 替换为您的真实生产域名
   PRODUCTION_URL: "https://hugo-overreacted-blog.workers.dev"
 
 jobs:
-  # Build job - runs on all triggers
+  # 1. 构建作业
   build:
     runs-on: ubuntu-latest
     name: Build Hugo Site
-    outputs:
-      hugo-version: ${{ steps.hugo-version.outputs.version }}
-      build-time: ${{ steps.build-info.outputs.time }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch full history for Hugo's .GitInfo
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -58,297 +55,56 @@ jobs:
           hugo-version: ${{ env.HUGO_VERSION }}
           extended: true
 
-      - name: Verify Hugo version
-        id: hugo-version
-        run: |
-          INSTALLED_VERSION=$(hugo version | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+')
-          echo "version=$INSTALLED_VERSION" >> $GITHUB_OUTPUT
-          echo "Hugo version: $INSTALLED_VERSION"
-          
-          # Verify minimum version requirement
-          if [[ "$INSTALLED_VERSION" < "v${{ env.HUGO_VERSION }}" ]]; then
-            echo "Error: Hugo version $INSTALLED_VERSION is below minimum requirement v${{ env.HUGO_VERSION }}"
-            exit 1
-          fi
-
-      - name: Install Node.js dependencies
+      - name: Install Dependencies & Build
+        # 在生产构建时，将 PRODUCTION_URL 环境变量传递给构建脚本
         run: |
           npm ci
-          echo "Node.js dependencies installed successfully"
-          
-      - name: Verify TailwindCSS CLI installation
-        run: |
-          echo "Verifying TailwindCSS CLI installation..."
-          ./node_modules/.bin/tailwindcss --version
-          which tailwindcss || echo "tailwindcss not in global PATH"
-          
-      - name: Create TailwindCSS global symlink
-        run: |
-          echo "Creating global symlink for TailwindCSS CLI..."
-          sudo ln -sf "$(pwd)/node_modules/.bin/tailwindcss" /usr/local/bin/tailwindcss
-          sudo chmod +x /usr/local/bin/tailwindcss
-          tailwindcss --version
-          echo "Verifying npx can find tailwindcss..."
-          npx tailwindcss --version
-
-      - name: Cache Hugo modules
-        uses: actions/cache@v4
-        with:
-          path: /tmp/hugo_cache
-          key: ${{ runner.os }}-hugomod-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-hugomod-
-
-      - name: Build Hugo site (Development)
-        if: github.ref != 'refs/heads/main'
-        run: |
-          echo "Building for development environment..."
-          echo "PATH: $PATH"
-          echo "TailwindCSS location: $(which tailwindcss)"
-          HUGO_ENV=development npm run build:development
-          echo "Development build completed"
-
-      - name: Build Hugo site (Production)
-        if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-        run: |
-          echo "Building for production environment..."
-          echo "PATH: $PATH"
-          echo "TailwindCSS location: $(which tailwindcss)"
-          HUGO_ENV=production npm run build:production
-          echo "Production build completed"
+          if [[ "${{ github.ref }}" == "refs/heads/main" || \
+                ( "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.environment }}" == "production" ) ]]; then
+            echo "Building for production..."
+            PRODUCTION_URL=${{ env.PRODUCTION_URL }} HUGO_ENV=production npm run build:production
+          else
+            echo "Building for staging/development..."
+            HUGO_ENV=development npm run build:development
+          fi
 
       - name: Validate build output
-        run: |
-          echo "Validating build output..."
-          npm run validate
-          
-          # Check if critical files exist
-          if [ ! -f "public/index.html" ]; then
-            echo "Error: index.html not found in build output"
-            exit 1
-          fi
-          
-          if [ ! -f "public/404.html" ]; then
-            echo "Error: 404.html not found in build output"
-            exit 1
-          fi
-          
-          # Check CSS files
-          if [ ! -d "public/css" ]; then
-            echo "Error: CSS directory not found in build output"
-            exit 1
-          fi
-          
-          echo "Build validation completed successfully"
-
-      - name: Generate build info
-        id: build-info
-        run: |
-          BUILD_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          echo "time=$BUILD_TIME" >> $GITHUB_OUTPUT
-          echo "Build completed at: $BUILD_TIME"
-          
-          # Generate build summary
-          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Hugo Version**: ${{ steps.hugo-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Node.js Version**: $(node --version)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Build Time**: $BUILD_TIME" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment**: ${HUGO_ENV:-development}" >> $GITHUB_STEP_SUMMARY
+        run: npm run validate
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: hugo-build-${{ github.sha }}
-          path: |
-            public/
-            hugo_stats.json
-            package.json
-            wrangler.toml
-          retention-days: 30
+          # 使用 github.run_id 确保工件名称的唯一性，防止并发冲突
+          name: hugo-build-${{ github.run_id }}
+          path: public/
+          retention-days: 7
 
-  # Deploy to staging - runs on develop branch and manual dispatch
-  deploy-staging:
+  # 2. 部署到 Staging 的触发器
+  deploy_staging:
     needs: build
-    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
-    runs-on: ubuntu-latest
     name: Deploy to Staging
-    environment:
-      name: staging
-      url: ${{ env.STAGING_URL }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      environment_name: staging
+      environment_url: ${{ env.STAGING_URL }}
+      # 传递唯一的工件名称
+      artifact_name: hugo-build-${{ github.run_id }}
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: hugo-build-${{ github.sha }}
-
-      - name: Deploy to Cloudflare Workers (Staging)
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: "latest"
-          command: deploy --env staging
-          workingDirectory: "."
-
-      - name: Test staging deployment
-        run: |
-          echo "Testing staging deployment..."
-          sleep 10  # Wait for deployment to propagate
-          
-          STAGING_URL="${{ env.STAGING_URL }}"
-          
-          # Test main page
-          if curl -f -s "$STAGING_URL" > /dev/null; then
-            echo "✅ Staging site is accessible"
-          else
-            echo "❌ Staging site is not accessible"
-            exit 1
-          fi
-          
-          # Test 404 page
-          if curl -f -s "$STAGING_URL/nonexistent-page" > /dev/null; then
-            echo "⚠️  404 page test inconclusive"
-          else
-            echo "✅ 404 handling is working"
-          fi
-
-      - name: Update deployment status
-        run: |
-          echo "## Staging Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment**: Staging" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL**: ${{ env.STAGING_URL }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ✅ Deployed successfully" >> $GITHUB_STEP_SUMMARY
-          echo "- **Build**: ${{ needs.build.outputs.hugo-version }} at ${{ needs.build.outputs.build-time }}" >> $GITHUB_STEP_SUMMARY
-
-  # Deploy to production - runs on main branch and manual dispatch
-  deploy-production:
+  # 3. 部署到 Production 的触发器
+  deploy_production:
     needs: build
-    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
-    runs-on: ubuntu-latest
     name: Deploy to Production
-    environment:
-      name: production
-      url: ${{ env.PRODUCTION_URL }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: hugo-build-${{ github.sha }}
-
-      - name: Deploy to Cloudflare Workers (Production)
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: "latest"
-          command: deploy --env production
-          workingDirectory: "."
-
-      - name: Test production deployment
-        run: |
-          echo "Testing production deployment..."
-          sleep 15  # Wait longer for production deployment to propagate
-          
-          PROD_URL="${{ env.PRODUCTION_URL }}"
-          
-          # Test main page
-          if curl -f -s "$PROD_URL" > /dev/null; then
-            echo "✅ Production site is accessible"
-          else
-            echo "❌ Production site is not accessible"
-            exit 1
-          fi
-          
-          # Test CSS loading
-          if curl -f -s "$PROD_URL/css/" > /dev/null; then
-            echo "✅ CSS assets are accessible"
-          else
-            echo "⚠️  CSS assets test inconclusive"
-          fi
-
-      - name: Run performance tests
-        run: |
-          echo "Running basic performance tests..."
-          
-          PROD_URL="${{ env.PRODUCTION_URL }}"
-          
-          # Test response time
-          RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' "$PROD_URL")
-          echo "Response time: ${RESPONSE_TIME}s"
-          
-          # Check if response time is reasonable (under 2 seconds)
-          if (( $(echo "$RESPONSE_TIME < 2.0" | bc -l) )); then
-            echo "✅ Response time is acceptable"
-          else
-            echo "⚠️  Response time is slower than expected"
-          fi
-
-      - name: Update deployment status
-        run: |
-          echo "## Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
-          echo "- **URL**: ${{ env.PRODUCTION_URL }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Status**: ✅ Deployed successfully" >> $GITHUB_STEP_SUMMARY
-          echo "- **Build**: ${{ needs.build.outputs.hugo-version }} at ${{ needs.build.outputs.build-time }}" >> $GITHUB_STEP_SUMMARY
-
-  # Performance and validation tests
-  validate-deployment:
-    needs: [build, deploy-staging]
-    if: always() && (needs.deploy-staging.result == 'success' || needs.deploy-production.result == 'success')
-    runs-on: ubuntu-latest
-    name: Validate Deployment
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install testing dependencies
-        run: |
-          npm ci
-          # Install additional testing tools if needed
-          npm install -g lighthouse-ci
-
-      - name: Run deployment tests
-        run: |
-          echo "Running comprehensive deployment tests..."
-          
-          # Determine which environment to test
-          if [ "${{ needs.deploy-production.result }}" == "success" ]; then
-            TEST_URL="${{ env.PRODUCTION_URL }}"
-            ENV_NAME="production"
-          else
-            TEST_URL="${{ env.STAGING_URL }}"
-            ENV_NAME="staging"
-          fi
-          
-          echo "Testing $ENV_NAME environment at $TEST_URL"
-          
-          # Run custom deployment tests
-          if [ -f "./scripts/test-deployment.sh" ]; then
-            SITE_URL="$TEST_URL" ./scripts/test-deployment.sh
-          else
-            echo "No custom deployment tests found, running basic tests..."
-            
-            # Basic accessibility and performance tests
-            curl -f -s "$TEST_URL" | grep -q "Hugo Overreacted Blog" && echo "✅ Site title found" || echo "❌ Site title not found"
-            curl -f -s "$TEST_URL" | grep -q "theme-switcher" && echo "✅ Theme switcher found" || echo "❌ Theme switcher not found"
-          fi
-
-      - name: Generate test report
-        run: |
-          echo "## Deployment Validation Report" >> $GITHUB_STEP_SUMMARY
-          echo "- **Test Environment**: ${ENV_NAME:-staging}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Test URL**: ${TEST_URL:-N/A}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Hugo Version**: ${{ needs.build.outputs.hugo-version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Validation Status**: ✅ Completed" >> $GITHUB_STEP_SUMMARY
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      environment_name: production
+      environment_url: ${{ env.PRODUCTION_URL }}
+      # 传递唯一的工件名称
+      artifact_name: hugo-build-${{ github.run_id }}
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
