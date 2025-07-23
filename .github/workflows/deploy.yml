@@ -93,7 +93,7 @@ jobs:
 
   # 3. 部署到 Production 的触发器
   deploy_production:
-    needs: build
+    needs: deploy_staging
     name: Deploy to Production
     if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
     uses: ./.github/workflows/reusable-deploy.yml

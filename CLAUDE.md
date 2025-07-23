@@ -180,7 +180,7 @@ npm install tailwindcss @tailwindcss/cli     # ✅ Correct - dependencies
 - `NODE_ENV=production` causes npm to skip `devDependencies` installation in CI environments
 - Development builds work (`minify: false`) but production builds fail (`minify: true`)
 
-**Key Lesson**: Before implementing complex CI workarounds, symlinks, or environment-specific handling, verify that packages are installed in the correct location according to official documentation. Many "complex" problems have simple solutions that are documented in official guides.
+**Key Lesson**: Before implementing complex workarounds, verify that packages are installed in the correct location according to official documentation. Many "complex" problems have simple solutions that are documented in official guides.
 
 ### Deployment Issues  
 1. Verify Wrangler authentication: `wrangler whoami`
