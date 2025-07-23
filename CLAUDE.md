@@ -158,11 +158,29 @@ hugo new posts/my-new-post.md
 
 ### TailwindCSS CLI Issues
 **Problem**: `binary with name "tailwindcss" not found using npx`
-**Cause**: Hugo's `css.TailwindCSS` function with `minify: true` requires TailwindCSS CLI to be accessible via `npx`
-**Solution**: The CI/CD pipeline automatically creates a global symlink for TailwindCSS CLI
-- In CI: `sudo ln -sf $(pwd)/node_modules/.bin/tailwindcss /usr/local/bin/tailwindcss`
-- Local development: Ensure TailwindCSS is globally installed or use `npm run dev`
-- Verification: `npx tailwindcss --version` should work
+**Root Cause**: Incorrect package installation location - TailwindCSS packages were installed in `devDependencies`
+
+**Critical Learning**: 
+- When facing complex technical issues, **always check official documentation first**
+- Simple solutions are often correct - avoid complex workarounds until root cause is found
+- Package placement (`dependencies` vs `devDependencies`) matters significantly in production builds
+
+**Incorrect Installation** (causes production build failures):
+```bash
+npm install -D tailwindcss @tailwindcss/cli  # ❌ Wrong - devDependencies
+```
+
+**Correct Installation** (per https://tailwindcss.com/docs/installation/tailwind-cli):
+```bash
+npm install tailwindcss @tailwindcss/cli     # ✅ Correct - dependencies
+```
+
+**Why This Matters**:
+- Hugo's `css.TailwindCSS` function with `minify: true` requires TailwindCSS CLI in production builds
+- `NODE_ENV=production` causes npm to skip `devDependencies` installation in CI environments
+- Development builds work (`minify: false`) but production builds fail (`minify: true`)
+
+**Key Lesson**: Before implementing complex CI workarounds, symlinks, or environment-specific handling, verify that packages are installed in the correct location according to official documentation. Many "complex" problems have simple solutions that are documented in official guides.
 
 ### Deployment Issues  
 1. Verify Wrangler authentication: `wrangler whoami`
