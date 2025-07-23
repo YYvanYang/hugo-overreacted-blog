@@ -81,9 +81,12 @@ mkdir -p "$CACHE_DIR"
 # Install Node.js dependencies if package.json exists
 if [ -f "package.json" ]; then
     echo -e "${BLUE}📦 Installing Node.js dependencies...${NC}"
-    if [ "$CI" = "true" ]; then
-        # Use npm ci in CI environments for faster, reliable builds
-        npm ci --prefer-offline --no-audit --silent
+    if [ "$CI" = "true" ] && [ "$GITHUB_ACTIONS" = "true" ]; then
+        # In GitHub Actions, skip reinstallation - dependencies already installed by workflow
+        echo "Skipping npm install in GitHub Actions (dependencies already installed)"
+    elif [ "$CI" = "true" ]; then
+        # Use npm ci in other CI environments, ensure devDependencies are included
+        npm ci --include=dev --prefer-offline --no-audit --silent
     else
         # In development, use install instead of ci to preserve existing node_modules
         if [ ! -d "node_modules" ]; then
