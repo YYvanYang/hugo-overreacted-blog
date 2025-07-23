@@ -1,0 +1,12 @@
+# robots.txt for Hugo Overreacted Blog
+# This file tells web crawlers which parts of the site they can access
+
+# Allow all web crawlers to access all content
+User-agent: *
+Allow: /
+
+# Sitemap location - Hugo automatically generates sitemap.xml
+Sitemap: https://hugo-overreacted-blog-staging.zjlgdx.workers.dev/sitemap.xml
+
+# Additional sitemap files that Hugo may generate
+Sitemap: https://hugo-overreacted-blog-staging.zjlgdx.workers.dev/index.xml
