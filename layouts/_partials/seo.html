@@ -1,28 +1,41 @@
 {{/* SEO Optimization Partial Template */}}
 {{/* Generate comprehensive meta tags for SEO, Open Graph, Twitter Cards, and JSON-LD structured data */}}
 
-{{/* Basic SEO Meta Tags */}}
-<meta name="description"
-    content="{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}">
+{{/* Generate meta description with proper character limits and HTML escaping */}}
+{{ $description := "" }}
+{{ with .Description }}
+  {{ $description = . }}
+{{ else }}
+  {{ with .Site.Params.description }}
+    {{ $description = . }}
+  {{ end }}
+{{ end }}
+{{/* Truncate description to 155 characters for optimal SEO */}}
+{{ if gt (len $description) 155 }}
+  {{ $description = substr $description 0 155 | strings.TrimSuffix " " }}
+  {{ $description = printf "%s..." $description }}
+{{ end }}
+
+{{/* Basic SEO Meta Tags with proper HTML escaping */}}
+<meta name="description" content="{{ $description | htmlEscape }}">
 {{ with .Site.Language.LanguageCode }}
-<meta name="language" content="{{ . }}">{{ end }}
+<meta name="language" content="{{ . | htmlEscape }}">{{ end }}
 {{ with .Site.Copyright }}
-<meta name="copyright" content="{{ . }}">{{ end }}
+<meta name="copyright" content="{{ . | htmlEscape }}">{{ end }}
 {{ with .Site.Params.author }}
-<meta name="author" content="{{ . }}">{{ end }}
+<meta name="author" content="{{ . | htmlEscape }}">{{ end }}
 
-{{/* Canonical URL */}}
-<link rel="canonical" href="{{ .Permalink }}">
+{{/* Canonical URL with absolute URL format */}}
+<link rel="canonical" href="{{ .Permalink | absURL }}">
 
-{{/* Open Graph Meta Tags */}}
-<meta property="og:title" content="{{ .Title }}{{ if not .IsHome }} | {{ .Site.Title }}{{ end }}">
-<meta property="og:description"
-    content="{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}">
+{{/* Open Graph Meta Tags with proper HTML escaping and absolute URLs */}}
+<meta property="og:title" content="{{ .Title | htmlEscape }}{{ if not .IsHome }} | {{ .Site.Title | htmlEscape }}{{ end }}">
+<meta property="og:description" content="{{ $description | htmlEscape }}">
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
-<meta property="og:url" content="{{ .Permalink }}">
-<meta property="og:site_name" content="{{ .Site.Title }}">
+<meta property="og:url" content="{{ .Permalink | absURL }}">
+<meta property="og:site_name" content="{{ .Site.Title | htmlEscape }}">
 {{ with .Site.Language.LanguageCode }}
-<meta property="og:locale" content="{{ . }}">{{ end }}
+<meta property="og:locale" content="{{ . | htmlEscape }}">{{ end }}
 
 {{/* Open Graph Images */}}
 {{ $images := slice }}
@@ -77,17 +90,17 @@
 {{ end }}
 {{ end }}
 
-{{/* Twitter Card Meta Tags */}}
+{{/* Twitter Card Meta Tags with proper HTML escaping */}}
 <meta name="twitter:card" content="summary{{ if $images }}_large_image{{ end }}">
 {{ with .Site.Params.social.twitter }}
-<meta name="twitter:site" content="@{{ . }}">{{ end }}
+<meta name="twitter:site" content="@{{ . | htmlEscape }}">{{ end }}
 {{ with .Site.Params.social.twitter }}
-<meta name="twitter:creator" content="@{{ . }}">{{ end }}
-<meta name="twitter:title" content="{{ .Title }}{{ if not .IsHome }} | {{ .Site.Title }}{{ end }}">
-<meta name="twitter:description"
-    content="{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}">
+<meta name="twitter:creator" content="@{{ . | htmlEscape }}">{{ end }}
+<meta name="twitter:title" content="{{ .Title | htmlEscape }}{{ if not .IsHome }} | {{ .Site.Title | htmlEscape }}{{ end }}">
+<meta name="twitter:description" content="{{ $description | htmlEscape }}">
 {{ with index $images 0 }}
-<meta name="twitter:image" content="{{ . }}">{{ end }}
+<meta name="twitter:image" content="{{ . }}">
+<meta name="twitter:image:alt" content="Featured image for {{ $.Title | htmlEscape }}">{{ end }}
 
 {{/* Additional meta tags for media */}}
 {{ with .Params.audio }}
@@ -101,14 +114,14 @@
 {{ end }}
 {{ end }}
 
-{{/* JSON-LD Structured Data */}}
+{{/* JSON-LD Structured Data with proper escaping */}}
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "{{ if .IsPage }}BlogPosting{{ else if .IsHome }}WebSite{{ else }}WebPage{{ end }}",
-  "headline": "{{ .Title }}",
-  "description": "{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}",
-  "url": "{{ .Permalink }}",
+  "headline": {{ .Title | jsonify }},
+  "description": {{ $description | jsonify }},
+  "url": "{{ .Permalink | absURL }}",
   {{ if .IsPage }}
   "datePublished": "{{ .PublishDate.Format "2006-01-02T15:04:05Z07:00" }}",
   "dateModified": "{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}",
@@ -116,12 +129,12 @@
   {{ with .Site.Params.author }}
   "author": {
     "@type": "Person",
-    "name": "{{ . }}"
+    "name": {{ . | jsonify }}
   },
   {{ end }}
   "publisher": {
     "@type": "Organization",
-    "name": "{{ .Site.Title }}",
+    "name": {{ .Site.Title | jsonify }},
     "url": "{{ .Site.BaseURL }}"
     {{ with index $images 0 }},
     "logo": {
@@ -146,7 +159,7 @@
   {{ if and .IsPage (.GetTerms "tags") }},
   "keywords": [
     {{ range $i, $tag := (.GetTerms "tags") }}
-      {{ if $i }}, {{ end }}"{{ $tag.LinkTitle }}"
+      {{ if $i }}, {{ end }}{{ $tag.LinkTitle | jsonify }}
     {{ end }}
   ]
   {{ end }}
@@ -159,20 +172,20 @@
 {
   "@context": "https://schema.org",
   "@type": "Article",
-  "headline": "{{ .Title }}",
-  "description": "{{ with .Description }}{{ . }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}",
-  "url": "{{ .Permalink }}",
+  "headline": {{ .Title | jsonify }},
+  "description": {{ $description | jsonify }},
+  "url": "{{ .Permalink | absURL }}",
   "datePublished": "{{ .PublishDate.Format "2006-01-02T15:04:05Z07:00" }}",
   "dateModified": "{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}",
   {{ with .Site.Params.author }}
   "author": {
     "@type": "Person",
-    "name": "{{ . }}"
+    "name": {{ . | jsonify }}
   },
   {{ end }}
   "publisher": {
     "@type": "Organization",
-    "name": "{{ .Site.Title }}",
+    "name": {{ .Site.Title | jsonify }},
     "url": "{{ .Site.BaseURL }}"
     {{ with index $images 0 }},
     "logo": {
@@ -183,7 +196,7 @@
   },
   "mainEntityOfPage": {
     "@type": "WebPage",
-    "@id": "{{ .Permalink }}"
+    "@id": "{{ .Permalink | absURL }}"
   }
   {{ with index $images 0 }},
   "image": {
@@ -194,7 +207,7 @@
   {{ if .GetTerms "tags" }},
   "keywords": [
     {{ range $i, $tag := (.GetTerms "tags") }}
-      {{ if $i }}, {{ end }}"{{ $tag.LinkTitle }}"
+      {{ if $i }}, {{ end }}{{ $tag.LinkTitle | jsonify }}
     {{ end }}
   ]
   {{ end }}
@@ -212,14 +225,14 @@
     {
       "@type": "ListItem",
       "position": 1,
-      "name": "{{ .Site.Title }}",
+      "name": {{ .Site.Title | jsonify }},
       "item": "{{ .Site.BaseURL }}"
     }
     {{ if .Section }},
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "{{ .Section | title }}",
+      "name": {{ .Section | title | jsonify }},
       "item": "{{ .Site.BaseURL }}{{ .Section }}/"
     }
     {{ end }}
@@ -227,8 +240,8 @@
     {
       "@type": "ListItem",
       "position": {{ if .Section }}3{{ else }}2{{ end }},
-      "name": "{{ .Title }}",
-      "item": "{{ .Permalink }}"
+      "name": {{ .Title | jsonify }},
+      "item": "{{ .Permalink | absURL }}"
     }
     {{ end }}
   ]

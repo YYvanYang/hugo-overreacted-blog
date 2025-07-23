@@ -264,7 +264,7 @@ else
 fi
 
 # Check for meta description
-if echo "$RESPONSE" | grep -q 'name="description"'; then
+if echo "$RESPONSE" | grep -q 'name=description\|name="description"'; then
     print_test_result "Meta Description" "PASS" "Meta description present"
 else
     print_test_result "Meta Description" "WARN" "Meta description missing"
@@ -278,14 +278,14 @@ else
 fi
 
 # Check for canonical URL
-if echo "$RESPONSE" | grep -q 'rel="canonical"'; then
+if echo "$RESPONSE" | grep -q 'rel=canonical\|rel="canonical"'; then
     print_test_result "Canonical URL" "PASS" "Canonical URL present"
 else
     print_test_result "Canonical URL" "WARN" "Canonical URL missing"
 fi
 
 # Check for viewport meta tag
-if echo "$RESPONSE" | grep -q 'name="viewport"'; then
+if echo "$RESPONSE" | grep -q 'name=viewport\|name="viewport"'; then
     print_test_result "Viewport Meta Tag" "PASS" "Viewport meta tag present"
 else
     print_test_result "Viewport Meta Tag" "FAIL" "Viewport meta tag missing"
