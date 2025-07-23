@@ -97,5 +97,10 @@ wrangler.toml.bak
 dist/
 build/
 
+# Test reports and validation outputs
+deployment-validation-report-*.json
+deployment-test-report-*.txt
+system-validation-report-*.json
+
 # Local development
 .local/
