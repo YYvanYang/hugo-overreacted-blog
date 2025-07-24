@@ -131,7 +131,7 @@ Multi-job pipeline:
 
 ### Required Variables
 - `STAGING_URL` - Staging environment URL (e.g., `https://hugo-overreacted-blog-staging.zjlgdx.workers.dev`)
-- `PRODUCTION_URL` - Production environment URL (e.g., `https://hugo-overreacted-blog.workers.dev`)
+- `PRODUCTION_URL` - Production environment URL (e.g., `https://hugo-overreacted-blog-prod.zjlgdx.workers.dev`)
 
 **Note**: Set these variables in GitHub repository Settings → Secrets and variables → Actions → Variables tab.
 

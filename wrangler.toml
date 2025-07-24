@@ -48,7 +48,7 @@ watch_dir = ["content", "layouts", "assets", "static", "hugo.toml"]
 # Variables for different environments
 [vars]
 ENVIRONMENT = "development"
-SITE_URL = "https://hugo-overreacted-blog.workers.dev"
+SITE_URL = "https://hugo-overreacted-blog-prod.zjlgdx.workers.dev"
 
 [env.production.vars]
 ENVIRONMENT = "production"

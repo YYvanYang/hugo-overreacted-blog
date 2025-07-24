@@ -243,7 +243,7 @@ env:
   GO_VERSION: "1.21"
   STAGING_URL: "https://hugo-overreacted-blog-staging.zjlgdx.workers.dev"
   # ⚠️ 重要: 请在项目上线时将此 URL 替换为您的真实生产域名
-  PRODUCTION_URL: "https://hugo-overreacted-blog.workers.dev"
+  PRODUCTION_URL: "https://hugo-overreacted-blog-prod.zjlgdx.workers.dev"
 
 jobs:
   # 1. 构建作业

@@ -34,7 +34,7 @@ npm run build:prod
 
 ## Live Demo
 
-- **Production:** https://hugo-overreacted-blog.workers.dev/
+- **Production:** https://hugo-overreacted-blog-prod.zjlgdx.workers.dev/
 - **Staging:** https://hugo-overreacted-blog-staging.zjlgdx.workers.dev/
 
 ## Documentation
@@ -99,4 +99,4 @@ Inspired by [overreacted.io](https://overreacted.io/) by Dan Abramov.
 
 ---
 
-**[Live Demo](https://hugo-overreacted-blog.workers.dev/)** • **[Documentation](docs/)** • **[Issues](https://github.com/YYvanYang/hugo-overreacted-blog/issues)**
+**[Live Demo](https://hugo-overreacted-blog-prod.zjlgdx.workers.dev/)** • **[Documentation](docs/)** • **[Issues](https://github.com/YYvanYang/hugo-overreacted-blog/issues)**
