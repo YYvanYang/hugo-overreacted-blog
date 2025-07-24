@@ -11,20 +11,30 @@ This is a Hugo Overreacted Blog - a minimalist blog template inspired by overrea
 ### Development Commands
 - `npm run dev` - Start Hugo development server with drafts and future posts
 - `npm run serve` - Start basic Hugo server  
-- `npm run build:development` - Build for development with source maps
-- `npm run build:production` - Build for production with full optimization
+- `npm run build:dev` - Build for development with source maps
+- `npm run build:prod` - Build for production with full optimization
+- `npm run build` - Alias for production build
 - `npm run clean` - Clean all build artifacts and cache
 
 ### Testing and Validation
 - `npm run test:system` - Validate system requirements and project structure
 - `npm run test:deployment` - Test deployed site (connectivity, performance, SEO)
-- `npm run validate` - Validate build output and critical files
+- `npm run test:all` - Run all tests (system + deployment)
+- `npm run test` - Alias for system testing
+- `npm run validate:build` - Validate build output and critical files
 - `npm run version:check` - Check tool versions (Hugo, Node.js, npm)
 
 ### Deployment Commands
 - `npm run deploy:staging` - Deploy to Cloudflare Workers staging
 - `npm run deploy:production` - Deploy to Cloudflare Workers production
 - `npm run deploy:dry-run` - Test deployment configuration without deploying
+- `npm run deploy` - Alias for staging deployment
+
+### CI/CD Integration Commands
+- `npm run ci:build` - CI-specific production build
+- `npm run ci:test` - CI-specific deployment testing
+- `npm run ci:deploy:staging` - CI-specific staging deployment
+- `npm run ci:deploy:prod` - CI-specific production deployment
 
 ### Wrangler Commands
 - `wrangler dev --env staging` - Start local Cloudflare Workers development
@@ -67,6 +77,7 @@ This prevents "Hugo not installed" errors in CI while maintaining local developm
 - `layouts/home.html` - Homepage template
 - `layouts/page.html` - Single page template
 - `layouts/section.html` - Section list template
+- `layouts/robots.txt` - Dynamic robots.txt template with environment-aware sitemap URLs
 - `layouts/_partials/` - Reusable components (head, header, footer, SEO)
 - `layouts/_markup/` - Markdown render hooks for enhanced content processing
 
@@ -81,6 +92,7 @@ This prevents "Hugo not installed" errors in CI while maintaining local developm
 ### Hugo Configuration (`hugo.toml`)
 Key features:
 - Hugo v0.148.1+ extended required
+- `enableRobotsTXT = true` for dynamic robots.txt generation
 - Goldmark renderer with typographer extensions
 - Comprehensive cache busters for asset processing
 - Module mounts including `hugo_stats.json` for Tailwind
@@ -89,7 +101,13 @@ Key features:
 
 ### Package Configuration (`package.json`)
 - Node.js v18+ and npm v9+ required
-- Comprehensive script collection for all development tasks
+- **Reorganized NPM Scripts**: Logical grouping with comment separators for better organization
+  - `//-- BUILD TASKS --//`: build:assets, build:dev, build:prod, build
+  - `//-- DEVELOPMENT --//`: dev, serve, clean
+  - `//-- VALIDATION & TESTING --//`: validate:build, test:system, test:deployment, test:all, test
+  - `//-- DEPLOYMENT --//`: deploy:staging, deploy:production, deploy:dry-run, deploy
+  - `//-- CI/CD INTEGRATION --//`: ci:build, ci:test, ci:deploy:staging, ci:deploy:prod
+  - `//-- UTILITIES --//`: version:check
 - Key dependencies: Tailwind CSS v4.1, PostCSS, Terser, Wrangler
 
 ### Wrangler Configuration (`wrangler.toml`)
@@ -154,7 +172,7 @@ hugo new posts/my-new-post.md
 1. Run `npm run test:system` to validate requirements
 2. Check Hugo version (must be v0.148.1+ extended)
 3. Clean build artifacts: `npm run clean`
-4. Rebuild: `npm run build:development`
+4. Rebuild: `npm run build:dev` (development) or `npm run build:prod` (production)
 
 ### TailwindCSS CLI Issues
 **Problem**: `binary with name "tailwindcss" not found using npx`
@@ -200,3 +218,20 @@ npm install tailwindcss @tailwindcss/cli     # ✅ Correct - dependencies
 - ❌ Wrong: `environment_url: ${{ env.STAGING_URL }}`
 - ✅ Correct: `environment_url: ${{ vars.STAGING_URL }}`
 - Variables must be set in GitHub repository Settings → Secrets and variables → Actions → Variables tab
+
+### Dynamic robots.txt Configuration
+**Current Implementation**: Uses Hugo's official `enableRobotsTXT = true` approach
+- ✅ **Correct**: `layouts/robots.txt` template with `{{ "sitemap.xml" | absURL }}`
+- ✅ **Required**: `enableRobotsTXT = true` in `hugo.toml`
+- ❌ **Deprecated**: Static `static/robots.txt` files (removed for SEO optimization)
+
+**Why Dynamic Generation is Essential**:
+- Ensures correct sitemap URLs across different environments (staging/production)
+- Provides proper SEO optimization with `Allow: /` and sitemap directives
+- Hugo's default template only includes `User-agent: *` without sitemap information
+
+### Performance Testing Script Optimization
+**Improvement**: Replaced `bc` command with `awk` for better POSIX compliance
+- ✅ **Current**: `awk -v time="$RESPONSE_TIME" 'BEGIN { print (time < 2.0) }'`
+- ❌ **Previous**: `echo "$RESPONSE_TIME < 2.0" | bc -l`
+- **Benefit**: Enhanced cross-platform compatibility, no external dependency on `bc`
