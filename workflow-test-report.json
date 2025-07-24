@@ -1,0 +1,178 @@
+{
+  "timestamp": "2025-07-24T06:36:58.966Z",
+  "summary": {
+    "totalTests": 11,
+    "totalPassed": 9,
+    "phases": [
+      {
+        "name": "Trigger Logic",
+        "passed": false,
+        "tests": 7,
+        "passedTests": 5
+      },
+      {
+        "name": "Deployment Independence",
+        "passed": true,
+        "tests": 4,
+        "passedTests": 4
+      },
+      {
+        "name": "Scenario Validation",
+        "passed": true,
+        "tests": 0,
+        "passedTests": 0
+      }
+    ]
+  },
+  "detailedResults": [
+    {
+      "phase": "Trigger Logic",
+      "passed": false,
+      "results": [
+        {
+          "name": "Develop branch push",
+          "passed": true,
+          "expected": {
+            "build": true,
+            "deploy_staging": true,
+            "deploy_production": false
+          },
+          "actual": {
+            "build": true,
+            "deploy_staging": true,
+            "deploy_production": false
+          }
+        },
+        {
+          "name": "Main branch push",
+          "passed": true,
+          "expected": {
+            "build": true,
+            "deploy_staging": false,
+            "deploy_production": true
+          },
+          "actual": {
+            "build": true,
+            "deploy_staging": false,
+            "deploy_production": true
+          }
+        },
+        {
+          "name": "Manual staging dispatch",
+          "passed": false,
+          "expected": {
+            "build": true,
+            "deploy_staging": true,
+            "deploy_production": false
+          },
+          "actual": {
+            "build": true,
+            "deploy_staging": true,
+            "deploy_production": true
+          },
+          "note": "This test reveals a workflow logic issue - manual dispatch should override branch conditions"
+        },
+        {
+          "name": "Manual production dispatch",
+          "passed": false,
+          "expected": {
+            "build": true,
+            "deploy_staging": false,
+            "deploy_production": true
+          },
+          "actual": {
+            "build": true,
+            "deploy_staging": true,
+            "deploy_production": true
+          },
+          "note": "This test reveals a workflow logic issue - manual dispatch should override branch conditions"
+        },
+        {
+          "name": "Job dependencies",
+          "passed": true,
+          "details": {
+            "buildIndependent": true,
+            "stagingCorrect": true,
+            "productionCorrect": true,
+            "buildDeps": [],
+            "stagingDeps": "build",
+            "productionDeps": "build"
+          }
+        },
+        {
+          "name": "Build environment logic",
+          "passed": true
+        },
+        {
+          "name": "Corrected workflow logic",
+          "passed": true,
+          "note": "Tests the proposed fix for manual dispatch conditions"
+        }
+      ]
+    },
+    {
+      "phase": "Deployment Independence",
+      "passed": true,
+      "results": [
+        {
+          "name": "Job Dependency Independence",
+          "passed": true,
+          "details": {
+            "buildIndependent": true,
+            "stagingCorrect": true,
+            "productionCorrect": true,
+            "noCircularDeps": true
+          }
+        },
+        {
+          "name": "Parallel Deployment Capability",
+          "passed": true,
+          "details": {
+            "stagingDeps": "build",
+            "productionDeps": "build",
+            "explanation": "Both jobs depend only on build, allowing parallel execution"
+          }
+        },
+        {
+          "name": "Artifact Uniqueness",
+          "passed": true,
+          "details": {
+            "buildUsesRunId": true,
+            "stagingUsesRunId": true,
+            "productionUsesRunId": true,
+            "artifactNamesMatch": true,
+            "buildArtifactName": "hugo-build-${{ github.run_id }}",
+            "stagingArtifactName": "hugo-build-${{ github.run_id }}",
+            "productionArtifactName": "hugo-build-${{ github.run_id }}"
+          }
+        },
+        {
+          "name": "Environment Isolation",
+          "passed": true,
+          "details": {
+            "differentEnvironments": true,
+            "stagingCorrect": true,
+            "productionCorrect": true,
+            "differentUrls": true,
+            "stagingUrlCorrect": true,
+            "productionUrlCorrect": true,
+            "stagingEnv": "staging",
+            "productionEnv": "production",
+            "stagingUrl": "${{ vars.STAGING_URL }}",
+            "productionUrl": "${{ vars.PRODUCTION_URL }}"
+          }
+        }
+      ]
+    },
+    {
+      "phase": "Scenario Validation",
+      "passed": true,
+      "results": []
+    }
+  ],
+  "recommendations": [
+    "Update workflow conditions to prioritize manual dispatch",
+    "Test corrected logic with provided validator",
+    "Verify deployment independence is maintained"
+  ]
+}

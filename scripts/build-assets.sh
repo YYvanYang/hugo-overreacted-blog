@@ -29,7 +29,14 @@ RESOURCES_DIR="resources"
 CACHE_DIR="tmp/hugo_cache"
 
 echo -e "${BLUE}🚀 Starting Hugo Asset Processing Pipeline${NC}"
-echo "Environment: $HUGO_ENV"
+echo -e "${BLUE}📋 Build Configuration:${NC}"
+echo "  HUGO_ENV: $HUGO_ENV"
+echo "  NODE_ENV: $NODE_ENV"
+if [ "$HUGO_ENV" = "production" ] && [ -n "$PRODUCTION_URL" ]; then
+    echo "  PRODUCTION_URL: $PRODUCTION_URL"
+fi
+echo "  CI: $CI"
+echo "  GITHUB_ACTIONS: $GITHUB_ACTIONS"
 
 # Function to check if command exists
 command_exists() {
@@ -126,15 +133,19 @@ fi
 # Add environment-specific flags
 if [ "$HUGO_ENV" = "production" ]; then
     HUGO_FLAGS="$HUGO_FLAGS --environment production"
-    # If PRODUCTION_URL env var is set, use it to override the baseURL
+    # Production builds require PRODUCTION_URL for proper baseURL configuration
     if [ -n "$PRODUCTION_URL" ]; then
         HUGO_FLAGS="$HUGO_FLAGS --baseURL $PRODUCTION_URL"
-        echo "Using production baseURL: $PRODUCTION_URL"
+        echo -e "${GREEN}✅ Using production baseURL: $PRODUCTION_URL${NC}"
+    else
+        echo -e "${YELLOW}⚠️  PRODUCTION_URL not set for production build${NC}"
     fi
     export HUGO_ENVIRONMENT=production
+    echo -e "${BLUE}🚀 Production build configuration active${NC}"
 else
     HUGO_FLAGS="$HUGO_FLAGS --environment development --buildDrafts --buildFuture"
     export HUGO_ENVIRONMENT=development
+    echo -e "${BLUE}🔧 Development build configuration active${NC}"
 fi
 
 # Build the site with asset optimization

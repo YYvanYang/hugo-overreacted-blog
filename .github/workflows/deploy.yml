@@ -29,6 +29,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: Build Hugo Site
+    outputs:
+      build-environment: ${{ steps.determine-env.outputs.environment }}
+      build-config: ${{ steps.determine-env.outputs.config }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,17 +55,59 @@ jobs:
           hugo-version: ${{ env.HUGO_VERSION }}
           extended: true
 
-      - name: Install Dependencies & Build
-        # 在生产构建时，将 PRODUCTION_URL 环境变量传递给构建脚本
+      - name: Determine build environment and configuration
+        id: determine-env
         run: |
-          npm ci
-          if [[ "${{ github.ref }}" == "refs/heads/main" || \
-                ( "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.environment }}" == "production" ) ]]; then
-            echo "Building for production..."
-            PRODUCTION_URL=${{ vars.PRODUCTION_URL }} HUGO_ENV=production npm run build:production
+          # Determine target environment based on branch and manual inputs
+          # Priority: Manual dispatch input > Branch-based logic
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Manual dispatch - use the selected environment
+            if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
+              echo "environment=production" >> $GITHUB_OUTPUT
+              echo "config=production" >> $GITHUB_OUTPUT
+              echo "🎯 Target Environment: PRODUCTION (manual dispatch)"
+              echo "📋 Build Configuration: production"
+            else
+              echo "environment=staging" >> $GITHUB_OUTPUT
+              echo "config=development" >> $GITHUB_OUTPUT
+              echo "🎯 Target Environment: STAGING (manual dispatch)"
+              echo "📋 Build Configuration: development"
+            fi
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            # Main branch push - production
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "config=production" >> $GITHUB_OUTPUT
+            echo "🎯 Target Environment: PRODUCTION (main branch)"
+            echo "📋 Build Configuration: production"
           else
-            echo "Building for staging/development..."
-            HUGO_ENV=development npm run build:development
+            # Develop branch or other - staging
+            echo "environment=staging" >> $GITHUB_OUTPUT
+            echo "config=development" >> $GITHUB_OUTPUT
+            echo "🎯 Target Environment: STAGING (develop branch)"
+            echo "📋 Build Configuration: development"
+          fi
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build with environment-aware configuration
+        env:
+          # Set environment variables based on determined configuration
+          HUGO_ENV: ${{ steps.determine-env.outputs.config == 'production' && 'production' || 'development' }}
+          NODE_ENV: ${{ steps.determine-env.outputs.config == 'production' && 'production' || 'development' }}
+          PRODUCTION_URL: ${{ steps.determine-env.outputs.config == 'production' && vars.PRODUCTION_URL || '' }}
+        run: |
+          echo "🏗️ Building with configuration: ${{ steps.determine-env.outputs.config }}"
+          echo "Environment variables:"
+          echo "  HUGO_ENV: $HUGO_ENV"
+          echo "  NODE_ENV: $NODE_ENV"
+          if [ "${{ steps.determine-env.outputs.config }}" == "production" ]; then
+            echo "  PRODUCTION_URL: $PRODUCTION_URL"
+            echo "🚀 Running production build..."
+            npm run build:production
+          else
+            echo "🔧 Running development build..."
+            npm run build:development
           fi
 
       - name: Validate build output
@@ -93,7 +138,7 @@ jobs:
 
   # 3. 部署到 Production 的触发器
   deploy_production:
-    needs: deploy_staging
+    needs: build
     name: Deploy to Production
     if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
     uses: ./.github/workflows/reusable-deploy.yml

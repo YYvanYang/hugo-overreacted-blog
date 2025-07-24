@@ -41,13 +41,14 @@
   "author": "Blog Author",
   "license": "MIT",
   "dependencies": {
-    "tailwindcss": "^4.1.11",
-    "@tailwindcss/cli": "^4.1.11"
+    "@tailwindcss/cli": "^4.1.11",
+    "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.16",
     "cssnano": "^6.0.1",
     "html-minifier-terser": "^7.2.0",
+    "js-yaml": "^4.1.0",
     "playwright": "^1.54.1",
     "postcss": "^8.4.32",
     "postcss-cli": "^11.0.0",
