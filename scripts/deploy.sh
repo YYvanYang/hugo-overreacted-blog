@@ -95,7 +95,7 @@ esac
 if [ "$ENVIRONMENT" = "production" ]; then
     export HUGO_ENV=production
     export NODE_ENV=production
-    EXPECTED_URL="https://hugo-overreacted-blog.workers.dev"
+    EXPECTED_URL="https://hugo-overreacted-blog-prod.zjlgdx.workers.dev"
 else
     export HUGO_ENV=development
     export NODE_ENV=development

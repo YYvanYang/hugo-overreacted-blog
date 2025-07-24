@@ -53,7 +53,7 @@ The workflow is triggered by:
 - **Runs on**: `main` branch or manual dispatch (production)
 - **Purpose**: Deploy to production environment
 - **Environment**: `production`
-- **URL**: `https://hugo-overreacted-blog.workers.dev`
+- **URL**: `https://hugo-overreacted-blog-prod.zjlgdx.workers.dev`
 - **Steps**:
   - Download build artifacts
   - Deploy using Wrangler CLI
@@ -200,7 +200,7 @@ CI=true GITHUB_ACTIONS=true ./scripts/test-system.sh
 SITE_URL="https://hugo-overreacted-blog-staging.zjlgdx.workers.dev" ./scripts/test-deployment.sh
 
 # Test production deployment
-SITE_URL="https://hugo-overreacted-blog.workers.dev" ./scripts/test-deployment.sh
+SITE_URL="https://hugo-overreacted-blog-prod.zjlgdx.workers.dev" ./scripts/test-deployment.sh
 
 # Generate detailed report
 ./scripts/test-deployment.sh --report
@@ -299,7 +299,7 @@ Key configurations:
 ### Production Environment
 - **Hugo Environment**: `production`
 - **Cloudflare Environment**: `production`
-- **URL**: `https://hugo-overreacted-blog.workers.dev`
+- **URL**: `https://hugo-overreacted-blog-prod.zjlgdx.workers.dev`
 - **Features**: Full optimization, minification, compression
 
 ## Performance Optimizations

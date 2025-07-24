@@ -35,7 +35,7 @@ Your site will be available at: `https://hugo-overreacted-blog-staging.zjlgdx.wo
 
 ### Development
 - **Command**: `npm run deploy`
-- **URL**: `https://hugo-overreacted-blog.workers.dev`
+- **URL**: `https://hugo-overreacted-blog-prod.zjlgdx.workers.dev`
 - **Use**: Local testing and development
 
 ### Staging
