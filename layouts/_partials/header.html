@@ -42,7 +42,7 @@
         </button>
         
         {{/* Theme toggle for mobile */}}
-        {{ partial "theme-toggle.html" . }}
+        {{ partial "theme-toggle.html" (dict "context" . "mobile" true) }}
       </div>
     </nav>
     

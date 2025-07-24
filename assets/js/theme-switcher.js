@@ -48,20 +48,26 @@ class ThemeSwitcher {
    * Set up event listeners for theme toggle buttons and keyboard shortcuts
    */
   setupEventListeners() {
-    // Theme toggle button
-    const toggleButton = document.getElementById('theme-toggle');
-    if (toggleButton) {
-      toggleButton.addEventListener('click', () => this.toggleTheme());
-      toggleButton.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.toggleTheme();
-        }
-      });
-      
-      // Update button state
-      this.updateToggleButton(toggleButton);
-    }
+    // Theme toggle buttons (desktop and mobile)
+    const toggleButtons = [
+      document.getElementById('theme-toggle'),
+      document.getElementById('theme-toggle-mobile')
+    ].filter(Boolean); // Remove null/undefined elements
+    
+    toggleButtons.forEach(toggleButton => {
+      if (toggleButton) {
+        toggleButton.addEventListener('click', () => this.toggleTheme());
+        toggleButton.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.toggleTheme();
+          }
+        });
+        
+        // Update button state
+        this.updateToggleButton(toggleButton);
+      }
+    });
     
     // Keyboard shortcut (Ctrl/Cmd + Shift + L)
     document.addEventListener('keydown', (e) => {
@@ -230,33 +236,46 @@ class ThemeSwitcher {
   
   /**
    * Update the theme toggle button state
-   * @param {HTMLElement} button - The toggle button element
+   * @param {HTMLElement} button - The toggle button element (optional)
    */
   updateToggleButton(button = null) {
-    const toggleButton = button || document.getElementById('theme-toggle');
-    if (!toggleButton) return;
+    // If no specific button provided, update all theme toggle buttons
+    const buttonsToUpdate = button ? [button] : [
+      document.getElementById('theme-toggle'),
+      document.getElementById('theme-toggle-mobile')
+    ].filter(Boolean);
     
     const effectiveTheme = this.getEffectiveTheme();
     const isDark = effectiveTheme === this.THEMES.DARK;
     
-    // Update ARIA label
-    const label = isDark 
-      ? 'Switch to light mode' 
-      : 'Switch to dark mode';
-    toggleButton.setAttribute('aria-label', label);
-    toggleButton.title = label;
-    
-    // Update icon visibility
-    const sunIcon = toggleButton.querySelector('.sun-icon');
-    const moonIcon = toggleButton.querySelector('.moon-icon');
-    
-    if (sunIcon && moonIcon) {
-      sunIcon.classList.toggle('hidden', isDark);
-      moonIcon.classList.toggle('hidden', !isDark);
-    }
-    
-    // Update pressed state for screen readers
-    toggleButton.setAttribute('aria-pressed', isDark.toString());
+    buttonsToUpdate.forEach(toggleButton => {
+      if (!toggleButton) return;
+      
+      // Update ARIA label
+      const label = isDark 
+        ? 'Switch to light mode' 
+        : 'Switch to dark mode';
+      toggleButton.setAttribute('aria-label', label);
+      toggleButton.title = label;
+      
+      // Update icon visibility
+      const sunIcon = toggleButton.querySelector('.sun-icon');
+      const moonIcon = toggleButton.querySelector('.moon-icon');
+      
+      if (sunIcon && moonIcon) {
+        sunIcon.classList.toggle('hidden', isDark);
+        moonIcon.classList.toggle('hidden', !isDark);
+      }
+      
+      // Update pressed state for screen readers
+      toggleButton.setAttribute('aria-pressed', isDark.toString());
+      
+      // Update theme status text
+      const themeStatus = toggleButton.querySelector('.theme-status');
+      if (themeStatus) {
+        themeStatus.textContent = effectiveTheme;
+      }
+    });
   }
   
   /**
