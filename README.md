@@ -1,517 +1,137 @@
-# Hugo Overreacted Blog
+# Hugo Overreacted Blog 模板
 
-A minimalist Hugo blog template inspired by [overreacted.io](https://overreacted.io) with modern development practices, automated deployment, and comprehensive CI/CD support.
+此仓库提供了一个**极简主义、高性能、易定制**的博客模板，灵感源自 [overreacted.io](https://overreacted.io/)。模板基于 [Hugo](https://gohugo.io/) 静态站点生成器和 [Tailwind CSS 4.1](https://tailwindcss.com/) 构建，并通过 [Cloudflare Workers](https://workers.cloudflare.com/) 部署到全球边缘网络，提供优秀的响应速度和可扩展性。
 
-![Hugo](https://img.shields.io/badge/Hugo-v0.148.1+-FF4088?style=flat&logo=hugo)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.1+-38B2AC?style=flat&logo=tailwind-css)
-![Node.js](https://img.shields.io/badge/Node.js-v18+-339933?style=flat&logo=node.js)
-![Cloudflare Workers](https://img.shields.io/badge/Cloudflare_Workers-Deployed-F38020?style=flat&logo=cloudflare)
+## 在线演示
 
-## ✨ Features
+- **生产环境**：<https://hugo-overreacted-blog-prod.zjlgdx.workers.dev/>
+- **测试环境**：<https://hugo-overreacted-blog-staging.zjlgdx.workers.dev/>
 
-### 🎨 **Modern Design**
-- Clean, minimalist design inspired by overreacted.io
-- Responsive layout with mobile-first approach
-- Dark/light theme switching with no-flash loading
-- Typography optimized for readability
+在访问链接时可以体验到亮暗主题切换、无闪烁加载、代码高亮和优秀的排版布局等功能。
 
-### 🚀 **Performance Optimized**
-- Asset minification and compression
-- Fingerprinting and cache busting
-- Integrity hashes for security
-- Global CDN distribution via Cloudflare Workers
+## 核心特性
 
-### 🛠 **Developer Experience**
-- Modern Hugo v0.148.1+ with extended features
-- Tailwind CSS v4.1 with CSS-first configuration
-- Comprehensive build automation
-- CI/CD pipeline with GitHub Actions
-- Multi-environment deployment (dev/staging/production)
+- **极简主义设计**：单列内容布局、系统字体栈、精心配置的间距和配色，让读者专注于内容本身:contentReference[oaicite:0]{index=0}。
+- **双主题支持**：通过 CSS 变量实现亮色和暗色模式，主题切换瞬间生效，无跳闪:contentReference[oaicite:1]{index=1}。
+- **完全响应式**：移动端自动适配，视口元标签和布局约束确保良好的阅读体验:contentReference[oaicite:2]{index=2}。
+- **Markdown 渲染优化**：使用 Hugo 的 Markdown hook 和 Chroma 高亮生成器，自定义代码主题以复刻 shiki 风格:contentReference[oaicite:3]{index=3}。
+- **SEO 与社交媒体优化**：模板自动插入 meta 描述、Canonical URL、Open Graph 和 Twitter 卡片，并生成 JSON‑LD 结构化数据:contentReference[oaicite:4]{index=4}。
+- **无障碍支持**：遵循 WCAG 标准的 ARIA 属性、键盘导航和焦点管理，确保残障用户可访问:contentReference[oaicite:5]{index=5}。
+- **现代构建与部署**：利用 GitHub Actions 自动完成安装、构建、测试、部署工作流，采用指纹和 SRI 提升缓存命中率与安全:contentReference[oaicite:6]{index=6}:contentReference[oaicite:7]{index=7}。
+- **丰富的文档**：仓库内包含构建、SEO、部署、验证报告等多篇文档，便于快速上手和二次开发:contentReference[oaicite:8]{index=8}。
 
-### ♿ **Accessibility First**
-- WCAG 2.1 compliant
-- Semantic HTML5 structure
-- Keyboard navigation support
-- Screen reader optimized
-- Focus management and indicators
+## 环境要求
 
-### 📈 **SEO Optimized**
-- Open Graph and Twitter Card meta tags
-- JSON-LD structured data
-- Automatic sitemap generation
-- Canonical URLs and meta descriptions
-- Performance-optimized loading
+- **Hugo**：`>=0.148.1`（须使用 extended 版）:contentReference[oaicite:9]{index=9}
+- **Node.js**：`>=18.0.0` 和 npm `>=9`:contentReference[oaicite:10]{index=10}
+- **Tailwind CSS CLI**：必须安装在 `dependencies` 中，生产环境会跳过 devDependencies:contentReference[oaicite:11]{index=11}
+- **Wrangler CLI**：用于部署到 Cloudflare Workers
 
-### 🔧 **Advanced Features**
-- Syntax highlighting with dual themes
-- Markdown render hooks for enhanced content
-- Automatic external link handling
-- Image optimization with lazy loading
-- Comprehensive testing suite
+## 快速开始
 
-## 🚀 Quick Start
-
-### Prerequisites
-
-- [Hugo](https://gohugo.io/installation/) v0.148.1+ (extended version)
-- [Node.js](https://nodejs.org/) v18.0.0+
-- [npm](https://www.npmjs.com/) v9.0.0+
-- [Git](https://git-scm.com/)
-
-### Installation
-
-1. **Clone the repository**
+1. 克隆仓库并安装依赖：
    ```bash
-   git clone https://github.com/username/hugo-overreacted-blog.git
+   git clone https://github.com/YYvanYang/hugo-overreacted-blog.git
    cd hugo-overreacted-blog
-   ```
+   npm ci
+````
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+2. 本地开发：
 
-3. **Verify system requirements**
-   ```bash
-   npm run test:system
-   ```
-
-4. **Start development server**
    ```bash
    npm run dev
+   # 或仅使用 Hugo 服务器
+   npm run serve
    ```
+3. 构建生产版本：
 
-5. **Open your browser**
-   ```
-   http://localhost:1313
-   ```
-
-## 📝 Usage
-
-### Development Workflow
-
-1. **Create new content**
-   ```bash
-   hugo new posts/my-new-post.md
-   ```
-
-2. **Start development server**
-   ```bash
-   npm run dev
-   ```
-
-3. **Build for production**
    ```bash
    npm run build:production
    ```
+4. 清理缓存与构建结果：
 
-4. **Test the build**
    ```bash
-   npm run validate
+   npm run clean
    ```
 
-### Content Management
+## 目录结构概览
 
-#### Blog Posts
-Create new blog posts in `content/posts/`:
-
-```markdown
----
-title: "My New Post"
-date: 2024-01-15T10:00:00Z
-draft: false
-tags: ["hugo", "blog"]
-categories: ["tutorials"]
-description: "A brief description of the post"
----
-
-Your content here...
+```
+.
+├── archetypes/             # Hugo 内容模板
+├── assets/                 # 样式、JavaScript 与设计令牌
+│   ├── css/main.css        # 主样式表，集成 Tailwind v4.1
+│   ├── css/chroma-*.css    # 语法高亮主题
+│   └── js/theme-switcher.js# 主题切换脚本
+├── content/                # Markdown 内容目录
+├── layouts/                # Hugo 模板布局 (baseof、home、section、partials 等):contentReference[oaicite:12]{index=12}
+├── scripts/                # 构建与部署脚本
+├── static/                 # 静态资源 (图片、字体等)
+├── hugo.toml               # Hugo 配置文件:contentReference[oaicite:13]{index=13}
+├── wrangler.toml           # Cloudflare Workers 配置
+└── ...
 ```
 
-#### Pages
-Create static pages in `content/`:
+## 配置说明
 
-```markdown
----
-title: "About"
-date: 2024-01-15T10:00:00Z
-menu:
-  main:
-    weight: 20
----
+### Hugo 设置
 
-About page content...
-```
+* `baseURL`：默认指向 staging，CI/CD 流程会在生产环境中使用 `PRODUCTION_URL` 参数覆盖。
+* 缓存与资源目录可在 `hugo.toml` 中调整，支持高级 Markup 与模块挂载。
 
-### Theme Customization
+### Tailwind 与 PostCSS
 
-#### Colors and Typography
-Edit `assets/css/main.css` to customize the theme:
+* 主样式定义在 `assets/css/main.css`，可通过 `@theme` 和自定义 CSS 变量调整颜色、间距和字体。
+* PostCSS 负责 autoprefixer 与现代 CSS 兼容处理。
 
-```css
-@theme {
-  --color-primary: theme(colors.blue.600);
-  --color-secondary: theme(colors.gray.600);
-  /* Add your custom properties */
-}
-```
+### SEO & 社交媒体
 
-#### Layout Modifications
-Templates are located in `layouts/`:
-- `layouts/baseof.html` - Base template
-- `layouts/index.html` - Homepage
-- `layouts/_default/single.html` - Single post/page
-- `layouts/_default/list.html` - List pages
-- `layouts/partials/` - Reusable components
+页面模板 (`layouts/_partials/seo.html`) 自动生成 meta 标签、Open Graph 和 JSON‑LD 数据。可在每个内容文件前置元数据里覆盖 `title`、`description`、`image` 等。
 
-## 🚀 Deployment
+### 部署到 Cloudflare Workers
 
-### Cloudflare Workers (Recommended)
+1. 安装 [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/)
 
-1. **Install Wrangler CLI**
    ```bash
    npm install -g wrangler
    ```
+2. 在仓库设置中配置以下变量/密钥：
 
-2. **Authenticate with Cloudflare**
+   * `CLOUDFLARE_API_TOKEN`
+   * `CLOUDFLARE_ACCOUNT_ID`
+   * `STAGING_URL` & `PRODUCTION_URL`：分别为测试和生产域名
+3. 构建并部署：
+
    ```bash
-   wrangler login
+   npm run deploy:staging    # 部署到测试环境
+   npm run deploy:production # 部署到生产环境
    ```
 
-3. **Deploy to staging**
-   ```bash
-   npm run deploy:staging
-   ```
+工作流中将生成构建产物并通过 `wrangler deploy` 发布到相应环境，推荐在 CI 中配合测试脚本验证安全头、SEO 元标签和 robots.txt 等。
 
-4. **Deploy to production**
-   ```bash
-   npm run deploy:production
-   ```
+## 个性化自定义
 
-### GitHub Actions (Automated)
+* **主题配色**：修改 `assets/css/main.css` 中的 CSS 变量即可调整亮/暗主题的色值，如背景色、文字色和链接颜色。
+* **布局结构**：编辑 `layouts` 目录下的模板，例如 `home.html`（首页列表）、`single.html`（文章页面）等。
+* **新增页面**：在 `content` 目录创建 Markdown 文件，设置前置参数（`title`、`date`、`draft`、`tags`、`categories` 等）即可自动生成页面。
+* **导航菜单**：在 `hugo.toml` 的 `[menu]` 部分定义新的菜单条目。
 
-1. **Set up repository secrets**
-   - `CLOUDFLARE_API_TOKEN`: Your Cloudflare API token
-   - `CLOUDFLARE_ACCOUNT_ID`: Your Cloudflare account ID
+## 常见问题
 
-2. **Set up repository variables**
-   - Go to **Settings** → **Secrets and variables** → **Actions** → **Variables** tab
-   - Add the following variables:
-     - `STAGING_URL`: Your staging environment URL (e.g., `https://your-blog-staging.workers.dev`)
-     - `PRODUCTION_URL`: Your production environment URL (e.g., `https://your-blog.workers.dev`)
+* **构建失败 : `tailwindcss` 找不到** — 确保 `tailwindcss` CLI 安装在 `dependencies` 中，而不是 `devDependencies`，生产环境不会安装 devDependencies。
+* **安全头未生效** — 如果生产环境缺少 X‑Frame‑Options 等安全头，可能是尚未部署最新 Cloudflare Worker 代码。请重新运行部署命令。
+* **手动执行工作流无效** — 更新可复用工作流条件，确保手动 dispatch 时优先执行部署逻辑。
 
-3. **Push to deploy**
-   - Push to `develop` branch → deploys to staging
-   - Push to `main` branch → deploys to production
+## 贡献指南
 
-4. **Manual deployment**
-   - Go to Actions tab in GitHub
-   - Run "Build and Deploy Hugo Blog" workflow
-   - Select environment (staging/production)
-
-### Other Platforms
-
-The template generates static files in `public/` that can be deployed to:
-- Netlify
-- Vercel
-- GitHub Pages
-- AWS S3 + CloudFront
-- Any static hosting provider
-
-## 🛠 Configuration
-
-### Hugo Configuration (`hugo.toml`)
-
-Key settings you might want to customize:
-
-```toml
-baseURL = 'https://yourdomain.com/'
-title = 'Your Blog Title'
-
-[params]
-  description = "Your blog description"
-  author = "Your Name"
-  
-  [params.social]
-    twitter = "yourusername"
-    github = "yourusername"
-```
-
-### Wrangler Configuration (`wrangler.toml`)
-
-Update for your domain:
-
-```toml
-name = "your-blog-name"
-
-[env.production]
-name = "your-blog-name-prod"
-# routes = [
-#   { pattern = "yourdomain.com/*", custom_domain = true }
-# ]
-```
-
-### Menu Configuration
-
-Add menu items in `hugo.toml`:
-
-```toml
-[[menu.main]]
-  name = "Home"
-  pageRef = "/"
-  weight = 10
-
-[[menu.main]]
-  name = "About"
-  pageRef = "/about"
-  weight = 20
-```
-
-## 📦 Available Scripts
-
-### Build Scripts
-```bash
-npm run build                 # Default build
-npm run build:production      # Production build with optimizations
-npm run build:development     # Development build
-npm run build:ci             # CI-specific build
-```
-
-### Development Scripts
-```bash
-npm run dev                  # Start development server
-npm run serve               # Start Hugo server
-npm run clean               # Clean build artifacts
-```
-
-### Testing Scripts
-```bash
-npm run test:system         # Validate system requirements
-npm run test:deployment     # Test deployed site
-npm run validate           # Validate build output
-```
-
-### Deployment Scripts
-```bash
-npm run deploy             # Deploy to staging
-npm run deploy:staging     # Deploy to staging
-npm run deploy:production  # Deploy to production
-npm run deploy:dry-run     # Test deployment without deploying
-```
-
-### Utility Scripts
-```bash
-npm run version:check      # Check tool versions
-npm run optimize          # Build and validate for production
-```
-
-## 🧪 Testing
-
-### System Validation
-```bash
-npm run test:system
-```
-Tests system dependencies, project structure, and configuration.
-
-### Deployment Testing
-```bash
-npm run test:deployment
-```
-Comprehensive testing of deployed site including:
-- Connectivity and HTTP status codes
-- Content validation
-- Asset loading
-- Performance metrics
-- SEO and accessibility
-- Security headers
-
-### Build Validation
-```bash
-npm run validate
-```
-Validates build output and critical files.
-
-## 📁 Project Structure
-
-```
-hugo-overreacted-blog/
-├── .github/
-│   └── workflows/
-│       └── deploy.yml          # CI/CD pipeline
-├── assets/
-│   ├── css/
-│   │   ├── main.css           # Main stylesheet
-│   │   ├── chroma-light.css   # Light theme syntax highlighting
-│   │   └── chroma-dark.css    # Dark theme syntax highlighting
-│   └── js/
-│       ├── theme-switcher.js  # Theme switching logic
-│       └── accessibility.js   # Accessibility enhancements
-├── content/
-│   ├── posts/                 # Blog posts
-│   ├── _index.md             # Homepage content
-│   └── about.md              # About page
-├── layouts/
-│   ├── _default/
-│   │   ├── baseof.html       # Base template
-│   │   ├── single.html       # Single post/page
-│   │   ├── list.html         # List pages
-│   │   └── _markup/          # Render hooks
-│   ├── partials/
-│   │   ├── head.html         # HTML head
-│   │   ├── header.html       # Site header
-│   │   ├── footer.html       # Site footer
-│   │   └── seo.html          # SEO meta tags
-│   └── index.html            # Homepage template
-├── scripts/
-│   ├── build-assets.sh       # Build script
-│   ├── deploy.sh            # Deployment script
-│   ├── test-deployment.sh   # Deployment testing
-│   └── test-system.sh       # System validation
-├── static/
-│   ├── images/              # Static images
-│   ├── 404.html            # Custom 404 page
-│   └── robots.txt          # Robots.txt
-├── hugo.toml               # Hugo configuration
-├── package.json            # Node.js dependencies
-├── wrangler.toml          # Cloudflare Workers config
-├── postcss.config.js      # PostCSS configuration
-└── BUILD-AUTOMATION.md    # Detailed build documentation
-```
-
-## 🔧 Customization
-
-### Adding New Features
-
-1. **Custom Shortcodes**
-   Create in `layouts/shortcodes/`:
-   ```html
-   <!-- layouts/shortcodes/note.html -->
-   <div class="note">
-     {{ .Inner }}
-   </div>
-   ```
-
-2. **Custom CSS**
-   Add to `assets/css/main.css`:
-   ```css
-   .custom-component {
-     @apply bg-gray-100 dark:bg-gray-800 p-4 rounded;
-   }
-   ```
-
-3. **Custom JavaScript**
-   Add to `assets/js/` and include in templates:
-   ```html
-   {{ $js := resources.Get "js/custom.js" | js.Build }}
-   <script src="{{ $js.RelPermalink }}" defer></script>
-   ```
-
-### Theme Modifications
-
-1. **Color Scheme**
-   Edit the `@theme` directive in `assets/css/main.css`
-
-2. **Typography**
-   Modify font settings in the CSS custom properties
-
-3. **Layout**
-   Edit templates in `layouts/` directory
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Hugo Version Mismatch**
-   ```bash
-   hugo version
-   # Ensure v0.148.1+ extended
-   ```
-
-2. **Node.js Dependencies**
-   ```bash
-   rm -rf node_modules package-lock.json
-   npm install
-   ```
-
-3. **Build Failures**
-   ```bash
-   npm run test:system
-   npm run clean
-   npm run build:development
-   ```
-
-4. **Deployment Issues**
-   ```bash
-   wrangler whoami
-   npm run deploy:dry-run
-   ```
-
-5. **GitHub Actions Variables Not Set**
-   Error: `The template is not valid. Unrecognized named-value: 'vars'`
-   ```bash
-   # Go to GitHub repository Settings → Secrets and variables → Actions → Variables
-   # Add STAGING_URL and PRODUCTION_URL variables
-   ```
-
-### Debug Commands
+欢迎贡献改进！可通过提交 Pull Request 修复错误、完善文档、添加主题或改进脚本。请确保遵循项目现有代码风格并通过所有验证脚本。此外，提交前请运行：
 
 ```bash
-# Check system requirements
-npm run version:check
-
-# Validate configuration
-npm run test:system
-
-# Test build process
-npm run build:development
-
-# Validate build output
-npm run validate
-
-# Test deployment
-npm run deploy:dry-run
+npm run test:system     # 验证系统兼容性
+npm run validate        # 验证构建输出
+npm run test:deployment # 部署验证
 ```
 
-## 📚 Documentation
+## 许可证
 
-- [BUILD-AUTOMATION.md](BUILD-AUTOMATION.md) - Comprehensive build and deployment guide
-- [Hugo Documentation](https://gohugo.io/documentation/)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Setup
-
-1. Clone your fork
-2. Install dependencies: `npm install`
-3. Run system validation: `npm run test:system`
-4. Start development: `npm run dev`
-5. Run tests: `npm run test:deployment`
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Inspired by [Dan Abramov's overreacted.io](https://overreacted.io)
-- Built with [Hugo](https://gohugo.io/)
-- Styled with [Tailwind CSS](https://tailwindcss.com/)
-- Deployed on [Cloudflare Workers](https://workers.cloudflare.com/)
-
-## 📞 Support
-
-- 📧 Email: [your-email@example.com](mailto:your-email@example.com)
-- 🐛 Issues: [GitHub Issues](https://github.com/username/hugo-overreacted-blog/issues)
-- 💬 Discussions: [GitHub Discussions](https://github.com/username/hugo-overreacted-blog/discussions)
-
----
-
-**Made with ❤️ and Hugo**
+此项目采用 [MIT License](LICENSE)。
