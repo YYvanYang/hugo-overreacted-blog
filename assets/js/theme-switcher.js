@@ -48,28 +48,53 @@ class ThemeSwitcher {
    * Set up event listeners for theme toggle buttons and keyboard shortcuts
    */
   setupEventListeners() {
-    // Theme toggle button
-    const toggleButton = document.getElementById('theme-toggle');
-    if (toggleButton) {
-      toggleButton.addEventListener('click', () => this.toggleTheme());
-      toggleButton.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          this.toggleTheme();
+    try {
+      // Theme toggle buttons (desktop and mobile)
+      const toggleButtons = [
+        document.getElementById('theme-toggle'),
+        document.getElementById('theme-toggle-mobile')
+      ].filter(Boolean); // Remove null/undefined elements
+      
+      if (toggleButtons.length === 0) {
+        console.warn('ThemeSwitcher: No theme toggle buttons found (#theme-toggle, #theme-toggle-mobile)');
+      }
+      
+      toggleButtons.forEach(toggleButton => {
+        if (toggleButton) {
+          try {
+            toggleButton.addEventListener('click', () => this.toggleTheme());
+            toggleButton.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.toggleTheme();
+              }
+            });
+            
+            // Update button state
+            this.updateToggleButton(toggleButton);
+            console.log('ThemeSwitcher: Event listeners attached to', toggleButton.id);
+          } catch (error) {
+            console.error('ThemeSwitcher: Error setting up button listeners:', error);
+          }
         }
       });
       
-      // Update button state
-      this.updateToggleButton(toggleButton);
-    }
-    
-    // Keyboard shortcut (Ctrl/Cmd + Shift + L)
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'L') {
-        e.preventDefault();
-        this.toggleTheme();
+      // Keyboard shortcut (Ctrl/Cmd + Shift + L)
+      try {
+        document.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'L') {
+            e.preventDefault();
+            this.toggleTheme();
+          }
+        });
+        console.log('ThemeSwitcher: Keyboard shortcut listener attached');
+      } catch (error) {
+        console.error('ThemeSwitcher: Error setting up keyboard shortcut:', error);
       }
-    });
+      
+    } catch (error) {
+      console.error('ThemeSwitcher: Error in setupEventListeners:', error);
+    }
   }
   
   /**
@@ -230,45 +255,66 @@ class ThemeSwitcher {
   
   /**
    * Update the theme toggle button state
-   * @param {HTMLElement} button - The toggle button element
+   * @param {HTMLElement} button - The toggle button element (optional)
    */
   updateToggleButton(button = null) {
-    const toggleButton = button || document.getElementById('theme-toggle');
-    if (!toggleButton) return;
+    // If no specific button provided, update all theme toggle buttons
+    const buttonsToUpdate = button ? [button] : [
+      document.getElementById('theme-toggle'),
+      document.getElementById('theme-toggle-mobile')
+    ].filter(Boolean);
     
     const effectiveTheme = this.getEffectiveTheme();
     const isDark = effectiveTheme === this.THEMES.DARK;
     
-    // Update ARIA label
-    const label = isDark 
-      ? 'Switch to light mode' 
-      : 'Switch to dark mode';
-    toggleButton.setAttribute('aria-label', label);
-    toggleButton.title = label;
-    
-    // Update icon visibility
-    const sunIcon = toggleButton.querySelector('.sun-icon');
-    const moonIcon = toggleButton.querySelector('.moon-icon');
-    
-    if (sunIcon && moonIcon) {
-      sunIcon.classList.toggle('hidden', isDark);
-      moonIcon.classList.toggle('hidden', !isDark);
-    }
-    
-    // Update pressed state for screen readers
-    toggleButton.setAttribute('aria-pressed', isDark.toString());
+    buttonsToUpdate.forEach(toggleButton => {
+      if (!toggleButton) return;
+      
+      // Update ARIA label
+      const label = isDark 
+        ? 'Switch to light mode' 
+        : 'Switch to dark mode';
+      toggleButton.setAttribute('aria-label', label);
+      toggleButton.title = label;
+      
+      // Update icon visibility
+      const sunIcon = toggleButton.querySelector('.sun-icon');
+      const moonIcon = toggleButton.querySelector('.moon-icon');
+      
+      if (sunIcon && moonIcon) {
+        sunIcon.classList.toggle('hidden', isDark);
+        moonIcon.classList.toggle('hidden', !isDark);
+      }
+      
+      // Update pressed state for screen readers
+      toggleButton.setAttribute('aria-pressed', isDark.toString());
+      
+      // Update theme status text
+      const themeStatus = toggleButton.querySelector('.theme-status');
+      if (themeStatus) {
+        themeStatus.textContent = effectiveTheme;
+      }
+    });
   }
   
   /**
-   * Announce theme change to screen readers
+   * Announce theme change to screen readers with enhanced context
    * @param {string} theme - The new theme
    */
   announceThemeChange(theme) {
+    // Use global accessibility manager if available
+    if (window.accessibilityManager && window.accessibilityManager.announceToScreenReader) {
+      const message = `Theme switched to ${theme} mode. Press Ctrl+Shift+L to toggle theme.`;
+      window.accessibilityManager.announceToScreenReader(message);
+      return;
+    }
+    
+    // Fallback announcement method
     const announcement = document.createElement('div');
     announcement.setAttribute('aria-live', 'polite');
     announcement.setAttribute('aria-atomic', 'true');
     announcement.className = 'sr-only';
-    announcement.textContent = `Switched to ${theme} mode`;
+    announcement.textContent = `Theme switched to ${theme} mode. Press Ctrl+Shift+L to toggle theme.`;
     
     document.body.appendChild(announcement);
     
@@ -338,12 +384,49 @@ class ThemeSwitcher {
   getCurrentPreference() {
     return this.currentTheme;
   }
+  
+  /**
+   * Clean up event listeners and resources
+   */
+  destroy() {
+    try {
+      // Remove event listeners from toggle buttons
+      const toggleButtons = [
+        document.getElementById('theme-toggle'),
+        document.getElementById('theme-toggle-mobile')
+      ].filter(Boolean);
+      
+      toggleButtons.forEach(toggleButton => {
+        if (toggleButton) {
+          // Clone and replace to remove all event listeners
+          const newButton = toggleButton.cloneNode(true);
+          toggleButton.parentNode.replaceChild(newButton, toggleButton);
+        }
+      });
+      
+      // Remove system preference listener
+      if (typeof window !== 'undefined' && window.matchMedia) {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mediaQuery.removeEventListener) {
+          // Can't remove without reference to original handler
+          // This is a limitation of the current implementation
+        }
+      }
+      
+      console.log('ThemeSwitcher: Cleanup completed');
+      
+    } catch (error) {
+      console.error('ThemeSwitcher: Error during cleanup:', error);
+    }
+  }
 }
 
-// Initialize theme switcher immediately to prevent flash
-const themeSwitcher = new ThemeSwitcher();
+// Initialize theme switcher immediately to prevent flash, but only if not already initialized
+let themeSwitcher;
 
-// Export for use in other scripts
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && !window.themeSwitcher) {
+  themeSwitcher = new ThemeSwitcher();
   window.themeSwitcher = themeSwitcher;
+} else if (typeof window !== 'undefined') {
+  themeSwitcher = window.themeSwitcher;
 }
