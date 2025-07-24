@@ -14,7 +14,7 @@
       </div>
       
       {{/* Desktop Navigation */}}
-      <div class="nav-desktop" style="display: flex; align-items: center; gap: var(--space-6);">
+      <div class="nav-desktop">
         {{/* Main navigation menu with hierarchical support */}}
         {{ partial "navigation-menu.html" . }}
         
@@ -62,11 +62,11 @@
 <style>
   /* Default: hide mobile navigation, show desktop */
   .nav-mobile {
-    display: none;
+    display: none !important;
   }
   
   .nav-desktop {
-    display: flex;
+    display: flex !important;
     align-items: center;
     gap: var(--space-6);
   }
@@ -74,10 +74,10 @@
   /* Mobile: hide desktop navigation, show mobile */
   @media (max-width: 768px) {
     .nav-desktop {
-      display: none;
+      display: none !important;
     }
     .nav-mobile {
-      display: flex;
+      display: flex !important;
       align-items: center;
       gap: var(--space-3);
     }
@@ -85,7 +85,7 @@
   
   /* Mobile menu styles */
   .mobile-menu.hidden {
-    display: none;
+    display: none !important;
   }
   
   .mobile-menu {

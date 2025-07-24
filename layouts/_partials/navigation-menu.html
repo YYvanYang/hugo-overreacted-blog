@@ -89,10 +89,17 @@
 {{/* Navigation interaction styles and JavaScript */}}
 <style>
   /* Enhanced dropdown menu styles with proper z-index and hover states */
-  .nav-menu {
+  .nav-desktop .nav-menu {
     display: flex;
     align-items: center;
     gap: var(--space-6);
+  }
+  
+  /* Hide desktop navigation menu on mobile */
+  @media (max-width: 768px) {
+    .nav-desktop .nav-menu {
+      display: none !important;
+    }
   }
 
   .nav-item {
