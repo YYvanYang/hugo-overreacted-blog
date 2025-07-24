@@ -31,18 +31,27 @@ class AccessibilityManager {
    * Initialize accessibility features
    */
   init() {
-    this.setupKeyboardNavigation();
-    this.setupFocusManagement();
-    this.setupReducedMotion();
-    this.setupHighContrast();
-    this.setupScreenReaderSupport();
-    this.validateColorContrast();
+    try {
+      console.log('AccessibilityManager: Initializing...');
+      
+      this.setupKeyboardNavigation();
+      this.setupFocusManagement();
+      this.setupReducedMotion();
+      this.setupHighContrast();
+      this.setupScreenReaderSupport();
+      this.validateColorContrast();
 
-    // Set up after DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => this.setupDOMFeatures());
-    } else {
-      this.setupDOMFeatures();
+      // Set up after DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => this.setupDOMFeatures());
+      } else {
+        this.setupDOMFeatures();
+      }
+      
+      console.log('AccessibilityManager: Initialization completed');
+      
+    } catch (error) {
+      console.error('AccessibilityManager: Initialization failed:', error);
     }
   }
 
@@ -523,12 +532,42 @@ class AccessibilityManager {
       window.speechSynthesis?.speaking ||
       false;
   }
+  
+  /**
+   * Clean up event listeners and resources
+   */
+  destroy() {
+    try {
+      // Remove global event listeners
+      // Note: This is a simplified cleanup - in a real implementation
+      // you'd want to track all added listeners for proper removal
+      
+      // Remove live region if we created it
+      const liveRegion = document.getElementById('live-region');
+      if (liveRegion && liveRegion.parentNode) {
+        liveRegion.parentNode.removeChild(liveRegion);
+      }
+      
+      // Remove any temporary elements we might have added
+      const focusVisibleElements = document.querySelectorAll('.focus-visible');
+      focusVisibleElements.forEach(element => {
+        element.classList.remove('focus-visible');
+      });
+      
+      console.log('AccessibilityManager: Cleanup completed');
+      
+    } catch (error) {
+      console.error('AccessibilityManager: Error during cleanup:', error);
+    }
+  }
 }
 
-// Initialize accessibility manager
-const accessibilityManager = new AccessibilityManager();
+// Initialize accessibility manager only if not already initialized
+let accessibilityManager;
 
-// Export for use in other scripts
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && !window.accessibilityManager) {
+  accessibilityManager = new AccessibilityManager();
   window.accessibilityManager = accessibilityManager;
+} else if (typeof window !== 'undefined') {
+  accessibilityManager = window.accessibilityManager;
 }

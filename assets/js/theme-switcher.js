@@ -48,34 +48,53 @@ class ThemeSwitcher {
    * Set up event listeners for theme toggle buttons and keyboard shortcuts
    */
   setupEventListeners() {
-    // Theme toggle buttons (desktop and mobile)
-    const toggleButtons = [
-      document.getElementById('theme-toggle'),
-      document.getElementById('theme-toggle-mobile')
-    ].filter(Boolean); // Remove null/undefined elements
-    
-    toggleButtons.forEach(toggleButton => {
-      if (toggleButton) {
-        toggleButton.addEventListener('click', () => this.toggleTheme());
-        toggleButton.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
+    try {
+      // Theme toggle buttons (desktop and mobile)
+      const toggleButtons = [
+        document.getElementById('theme-toggle'),
+        document.getElementById('theme-toggle-mobile')
+      ].filter(Boolean); // Remove null/undefined elements
+      
+      if (toggleButtons.length === 0) {
+        console.warn('ThemeSwitcher: No theme toggle buttons found (#theme-toggle, #theme-toggle-mobile)');
+      }
+      
+      toggleButtons.forEach(toggleButton => {
+        if (toggleButton) {
+          try {
+            toggleButton.addEventListener('click', () => this.toggleTheme());
+            toggleButton.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.toggleTheme();
+              }
+            });
+            
+            // Update button state
+            this.updateToggleButton(toggleButton);
+            console.log('ThemeSwitcher: Event listeners attached to', toggleButton.id);
+          } catch (error) {
+            console.error('ThemeSwitcher: Error setting up button listeners:', error);
+          }
+        }
+      });
+      
+      // Keyboard shortcut (Ctrl/Cmd + Shift + L)
+      try {
+        document.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'L') {
             e.preventDefault();
             this.toggleTheme();
           }
         });
-        
-        // Update button state
-        this.updateToggleButton(toggleButton);
+        console.log('ThemeSwitcher: Keyboard shortcut listener attached');
+      } catch (error) {
+        console.error('ThemeSwitcher: Error setting up keyboard shortcut:', error);
       }
-    });
-    
-    // Keyboard shortcut (Ctrl/Cmd + Shift + L)
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'L') {
-        e.preventDefault();
-        this.toggleTheme();
-      }
-    });
+      
+    } catch (error) {
+      console.error('ThemeSwitcher: Error in setupEventListeners:', error);
+    }
   }
   
   /**
@@ -357,12 +376,49 @@ class ThemeSwitcher {
   getCurrentPreference() {
     return this.currentTheme;
   }
+  
+  /**
+   * Clean up event listeners and resources
+   */
+  destroy() {
+    try {
+      // Remove event listeners from toggle buttons
+      const toggleButtons = [
+        document.getElementById('theme-toggle'),
+        document.getElementById('theme-toggle-mobile')
+      ].filter(Boolean);
+      
+      toggleButtons.forEach(toggleButton => {
+        if (toggleButton) {
+          // Clone and replace to remove all event listeners
+          const newButton = toggleButton.cloneNode(true);
+          toggleButton.parentNode.replaceChild(newButton, toggleButton);
+        }
+      });
+      
+      // Remove system preference listener
+      if (typeof window !== 'undefined' && window.matchMedia) {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        if (mediaQuery.removeEventListener) {
+          // Can't remove without reference to original handler
+          // This is a limitation of the current implementation
+        }
+      }
+      
+      console.log('ThemeSwitcher: Cleanup completed');
+      
+    } catch (error) {
+      console.error('ThemeSwitcher: Error during cleanup:', error);
+    }
+  }
 }
 
-// Initialize theme switcher immediately to prevent flash
-const themeSwitcher = new ThemeSwitcher();
+// Initialize theme switcher immediately to prevent flash, but only if not already initialized
+let themeSwitcher;
 
-// Export for use in other scripts
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && !window.themeSwitcher) {
+  themeSwitcher = new ThemeSwitcher();
   window.themeSwitcher = themeSwitcher;
+} else if (typeof window !== 'undefined') {
+  themeSwitcher = window.themeSwitcher;
 }

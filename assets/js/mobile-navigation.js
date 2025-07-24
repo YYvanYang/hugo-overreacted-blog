@@ -59,9 +59,20 @@ class MobileNavigation {
       console.log('Mobile Navigation: Document ready state:', document.readyState);
       console.log('Mobile Navigation: DOM body exists:', !!document.body);
       
-      // Get DOM elements
-      this.toggle = document.getElementById('mobile-menu-toggle');
-      this.menu = document.getElementById('mobile-menu');
+      // Validate document state
+      if (!document.body) {
+        console.error('Mobile Navigation: Document body not available');
+        return;
+      }
+      
+      // Get DOM elements with error handling
+      try {
+        this.toggle = document.getElementById('mobile-menu-toggle');
+        this.menu = document.getElementById('mobile-menu');
+      } catch (error) {
+        console.error('Mobile Navigation: Error querying DOM elements:', error);
+        return;
+      }
       
       console.log('Mobile Navigation: Found elements:', {
         toggle: !!this.toggle,
@@ -74,27 +85,37 @@ class MobileNavigation {
         console.log(`Mobile Navigation: Elements not found, retrying in 100ms (attempt ${this.retryCount}/${this.maxRetries})`);
         
         // Debug: List all IDs in the document
-        const allIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
-        console.log('Mobile Navigation: Available element IDs:', allIds);
+        try {
+          const allIds = Array.from(document.querySelectorAll('[id]')).map(el => el.id);
+          console.log('Mobile Navigation: Available element IDs:', allIds);
+        } catch (error) {
+          console.warn('Mobile Navigation: Could not list element IDs:', error);
+        }
         
         setTimeout(() => this.setupElements(), 100);
         return;
       }
       
-      // If still not found after retries, log error and continue with what we have
+      // If still not found after retries, log error and return
       if (!this.toggle) {
         console.error('Mobile Navigation: Toggle button not found after retries (#mobile-menu-toggle)');
+        this.logDOMState();
         return;
       }
       
       if (!this.menu) {
         console.error('Mobile Navigation: Menu element not found after retries (#mobile-menu)');
+        this.logDOMState();
         return;
       }
       
-      // Get icon elements
-      this.menuIcon = this.toggle.querySelector('.menu-icon');
-      this.closeIcon = this.toggle.querySelector('.close-icon');
+      // Get icon elements with error handling
+      try {
+        this.menuIcon = this.toggle.querySelector('.menu-icon');
+        this.closeIcon = this.toggle.querySelector('.close-icon');
+      } catch (error) {
+        console.error('Mobile Navigation: Error querying icon elements:', error);
+      }
       
       console.log('Mobile Navigation: Found icons:', {
         menuIcon: !!this.menuIcon,
@@ -103,11 +124,17 @@ class MobileNavigation {
       
       if (!this.menuIcon || !this.closeIcon) {
         console.warn('Mobile Navigation: Menu icons not found (.menu-icon, .close-icon)');
+        this.logToggleStructure();
       }
       
       // Set initial state based on current attributes
-      this.isOpen = this.toggle.getAttribute('aria-expanded') === 'true';
-      console.log('Mobile Navigation: Initial state - isOpen:', this.isOpen);
+      try {
+        this.isOpen = this.toggle.getAttribute('aria-expanded') === 'true';
+        console.log('Mobile Navigation: Initial state - isOpen:', this.isOpen);
+      } catch (error) {
+        console.error('Mobile Navigation: Error reading initial state:', error);
+        this.isOpen = false;
+      }
       
       // Attach event listeners
       this.attachEventListeners();
@@ -120,6 +147,45 @@ class MobileNavigation {
       
     } catch (error) {
       console.error('Mobile Navigation: Failed to initialize', error);
+      this.logDOMState();
+    }
+  }
+  
+  /**
+   * Log DOM state for debugging
+   */
+  logDOMState() {
+    try {
+      console.log('Mobile Navigation: DOM Debug Info:', {
+        documentReadyState: document.readyState,
+        bodyExists: !!document.body,
+        headExists: !!document.head,
+        totalElements: document.querySelectorAll('*').length,
+        elementsWithId: document.querySelectorAll('[id]').length
+      });
+    } catch (error) {
+      console.error('Mobile Navigation: Error logging DOM state:', error);
+    }
+  }
+  
+  /**
+   * Log toggle button structure for debugging
+   */
+  logToggleStructure() {
+    if (!this.toggle) return;
+    
+    try {
+      console.log('Mobile Navigation: Toggle structure:', {
+        id: this.toggle.id,
+        className: this.toggle.className,
+        innerHTML: this.toggle.innerHTML,
+        children: Array.from(this.toggle.children).map(child => ({
+          tagName: child.tagName,
+          className: child.className
+        }))
+      });
+    } catch (error) {
+      console.error('Mobile Navigation: Error logging toggle structure:', error);
     }
   }
   
@@ -489,7 +555,7 @@ class MobileNavigation {
   }
 }
 
-// Initialize mobile navigation
+// Initialize mobile navigation only if not already initialized
 let mobileNavigation;
 
 // Initialize when DOM is ready
@@ -499,9 +565,9 @@ function initializeMobileNavigation() {
   
   try {
     // Prevent multiple initialization
-    if (mobileNavigation) {
+    if (mobileNavigation || (typeof window !== 'undefined' && window.mobileNavigation)) {
       console.log('Mobile Navigation: Already initialized, skipping');
-      return;
+      return window.mobileNavigation || mobileNavigation;
     }
     
     console.log('Mobile Navigation: Creating new MobileNavigation instance');
@@ -514,30 +580,36 @@ function initializeMobileNavigation() {
     }
     
     console.log('Mobile Navigation: Initialization complete');
+    return mobileNavigation;
     
   } catch (error) {
     console.error('Mobile Navigation: Failed to initialize:', error);
+    return null;
   }
 }
 
-// Multiple initialization strategies to ensure it works
-console.log('Mobile Navigation: Setting up initialization...');
+// Only initialize if not being managed by NavigationController
+if (typeof window === 'undefined' || !window.navigationController) {
+  console.log('Mobile Navigation: Setting up standalone initialization...');
 
-if (document.readyState === 'loading') {
-  console.log('Mobile Navigation: DOM loading, adding DOMContentLoaded listener');
-  document.addEventListener('DOMContentLoaded', initializeMobileNavigation);
-} else {
-  console.log('Mobile Navigation: DOM ready, initializing immediately');
-  initializeMobileNavigation();
-}
-
-// Fallback initialization after a delay
-setTimeout(() => {
-  if (!mobileNavigation) {
-    console.log('Mobile Navigation: Fallback initialization after 1 second');
+  if (document.readyState === 'loading') {
+    console.log('Mobile Navigation: DOM loading, adding DOMContentLoaded listener');
+    document.addEventListener('DOMContentLoaded', initializeMobileNavigation);
+  } else {
+    console.log('Mobile Navigation: DOM ready, initializing immediately');
     initializeMobileNavigation();
   }
-}, 1000);
+
+  // Fallback initialization after a delay
+  setTimeout(() => {
+    if (!mobileNavigation && (!window.mobileNavigation)) {
+      console.log('Mobile Navigation: Fallback initialization after 1 second');
+      initializeMobileNavigation();
+    }
+  }, 1000);
+} else {
+  console.log('Mobile Navigation: NavigationController detected, skipping standalone initialization');
+}
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
