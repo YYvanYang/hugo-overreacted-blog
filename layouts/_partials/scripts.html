@@ -4,6 +4,12 @@
 {{/* Collect JavaScript assets for bundling */}}
 {{ $jsAssets := slice }}
 
+{{/* Mobile navigation script - Requirements 2.1, 2.2, 2.3, 2.4, 2.5 */}}
+{{ $mobileNavScript := resources.Get "js/mobile-navigation.js" }}
+{{ if $mobileNavScript }}
+  {{ $jsAssets = $jsAssets | append $mobileNavScript }}
+{{ end }}
+
 {{/* Theme switcher script */}}
 {{ $themeScript := resources.Get "js/theme-switcher.js" }}
 {{ if $themeScript }}
