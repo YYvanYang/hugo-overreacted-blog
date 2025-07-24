@@ -353,8 +353,23 @@ npm run test:deployment  # Deployment testing
 
 ## 📚 Documentation
 
-Additional documentation available:
-- [`CLAUDE.md`](CLAUDE.md): AI assistant development guidelines
+### Project Documentation
+- **[📖 Complete Documentation](docs/)** - Comprehensive technical guides and reports
+- **[🤖 AI Assistant Guidelines](CLAUDE.md)** - Development instructions for Claude Code
+
+### Technical Documentation
+- **[🔧 Asset Processing](docs/technical/asset-processing.md)** - Build pipeline and optimization
+- **[🚀 Build Automation](docs/technical/build-automation.md)** - CI/CD workflow and deployment
+- **[☁️ Deployment Guide](docs/technical/deployment.md)** - Cloudflare Workers deployment
+- **[🔍 SEO Implementation](docs/technical/seo-implementation.md)** - Search optimization features
+
+### Testing & Validation Reports  
+- **[📊 System Validation](docs/reports/system-validation.md)** - Environment and requirements testing
+- **[🧪 Deployment Testing](docs/reports/deployment-validation.md)** - Connectivity and performance validation
+- **[🧭 Navigation Testing](docs/reports/navigation-test.md)** - UI and accessibility testing
+- **[⚙️ Workflow Testing](docs/reports/workflow-test.md)** - CI/CD pipeline validation
+
+### External Resources
 - [Hugo Configuration Guide](https://gohugo.io/getting-started/configuration/)
 - [Tailwind CSS v4 Documentation](https://tailwindcss.com/)
 - [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
