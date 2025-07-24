@@ -202,6 +202,12 @@ class NavigationController {
    * Initialize theme switcher with error handling
    */
   initializeThemeSwitcher() {
+    // Return existing instance if available
+    if (window.themeSwitcher) {
+      this.log('NavigationController: Using existing ThemeSwitcher instance');
+      return window.themeSwitcher;
+    }
+    
     // Check if ThemeSwitcher class is available
     if (typeof ThemeSwitcher === 'undefined') {
       this.warn('NavigationController: ThemeSwitcher class not found');
@@ -219,8 +225,9 @@ class NavigationController {
     }
     
     try {
-      // ThemeSwitcher handles its own initialization
-      return window.themeSwitcher || new ThemeSwitcher();
+      // Create new instance only if none exists
+      const instance = new ThemeSwitcher();
+      return instance;
     } catch (error) {
       throw new Error(`ThemeSwitcher initialization failed: ${error.message}`);
     }
@@ -230,6 +237,12 @@ class NavigationController {
    * Initialize mobile navigation with error handling
    */
   initializeMobileNavigation() {
+    // Return existing instance if available
+    if (window.mobileNavigation) {
+      this.log('NavigationController: Using existing MobileNavigation instance');
+      return window.mobileNavigation;
+    }
+    
     // Check if MobileNavigation class is available
     if (typeof MobileNavigation === 'undefined') {
       this.warn('NavigationController: MobileNavigation class not found');
@@ -254,8 +267,9 @@ class NavigationController {
     }
     
     try {
-      // Return existing instance or create new one
-      return window.mobileNavigation || new MobileNavigation();
+      // Create new instance only if none exists
+      const instance = new MobileNavigation();
+      return instance;
     } catch (error) {
       throw new Error(`MobileNavigation initialization failed: ${error.message}`);
     }
@@ -265,6 +279,12 @@ class NavigationController {
    * Initialize accessibility manager with error handling
    */
   initializeAccessibilityManager() {
+    // Return existing instance if available
+    if (window.accessibilityManager) {
+      this.log('NavigationController: Using existing AccessibilityManager instance');
+      return window.accessibilityManager;
+    }
+    
     // Check if AccessibilityManager class is available
     if (typeof AccessibilityManager === 'undefined') {
       this.warn('NavigationController: AccessibilityManager class not found');
@@ -272,8 +292,9 @@ class NavigationController {
     }
     
     try {
-      // Return existing instance or create new one
-      return window.accessibilityManager || new AccessibilityManager();
+      // Create new instance only if none exists
+      const instance = new AccessibilityManager();
+      return instance;
     } catch (error) {
       throw new Error(`AccessibilityManager initialization failed: ${error.message}`);
     }
