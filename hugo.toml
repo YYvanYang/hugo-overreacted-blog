@@ -1,6 +1,7 @@
 baseURL = 'https://hugo-overreacted-blog-staging.zjlgdx.workers.dev/'
 languageCode = 'en-us'
 title = 'Hugo Overreacted Blog'
+enableRobotsTXT = true
 
 # Hugo version requirements
 [module]

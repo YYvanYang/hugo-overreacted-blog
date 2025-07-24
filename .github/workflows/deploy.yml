@@ -25,7 +25,6 @@ env:
   GO_VERSION: "1.21"
 
 jobs:
-  # 1. 构建作业
   build:
     runs-on: ubuntu-latest
     name: Build Hugo Site
@@ -48,6 +47,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
+          cache: false
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
@@ -58,93 +58,57 @@ jobs:
       - name: Determine build environment and configuration
         id: determine-env
         run: |
-          # Determine target environment based on branch and manual inputs
-          # Priority: Manual dispatch input > Branch-based logic
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # Manual dispatch - use the selected environment
-            if [[ "${{ github.event.inputs.environment }}" == "production" ]]; then
-              echo "environment=production" >> $GITHUB_OUTPUT
-              echo "config=production" >> $GITHUB_OUTPUT
-              echo "🎯 Target Environment: PRODUCTION (manual dispatch)"
-              echo "📋 Build Configuration: production"
-            else
-              echo "environment=staging" >> $GITHUB_OUTPUT
-              echo "config=development" >> $GITHUB_OUTPUT
-              echo "🎯 Target Environment: STAGING (manual dispatch)"
-              echo "📋 Build Configuration: development"
-            fi
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+            echo "config=${{ (github.event.inputs.environment == 'production' && 'production') || 'development' }}" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            # Main branch push - production
             echo "environment=production" >> $GITHUB_OUTPUT
             echo "config=production" >> $GITHUB_OUTPUT
-            echo "🎯 Target Environment: PRODUCTION (main branch)"
-            echo "📋 Build Configuration: production"
           else
-            # Develop branch or other - staging
             echo "environment=staging" >> $GITHUB_OUTPUT
             echo "config=development" >> $GITHUB_OUTPUT
-            echo "🎯 Target Environment: STAGING (develop branch)"
-            echo "📋 Build Configuration: development"
           fi
 
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Build with environment-aware configuration
+      - name: Install Dependencies and Build
         env:
-          # Set environment variables based on determined configuration
-          HUGO_ENV: ${{ steps.determine-env.outputs.config == 'production' && 'production' || 'development' }}
-          NODE_ENV: ${{ steps.determine-env.outputs.config == 'production' && 'production' || 'development' }}
+          HUGO_ENV: ${{ steps.determine-env.outputs.config }}
+          NODE_ENV: ${{ steps.determine-env.outputs.config }}
           PRODUCTION_URL: ${{ steps.determine-env.outputs.config == 'production' && vars.PRODUCTION_URL || '' }}
         run: |
-          echo "🏗️ Building with configuration: ${{ steps.determine-env.outputs.config }}"
-          echo "Environment variables:"
-          echo "  HUGO_ENV: $HUGO_ENV"
-          echo "  NODE_ENV: $NODE_ENV"
-          if [ "${{ steps.determine-env.outputs.config }}" == "production" ]; then
-            echo "  PRODUCTION_URL: $PRODUCTION_URL"
-            echo "🚀 Running production build..."
-            npm run build:production
-          else
-            echo "🔧 Running development build..."
-            npm run build:development
-          fi
+          npm ci
+          echo "Building with configuration: ${{ steps.determine-env.outputs.config }}"
+          npm run build:${{ (steps.determine-env.outputs.config == 'production' && 'prod') || 'dev' }}
 
       - name: Validate build output
-        run: npm run validate
+        run: npm run validate:build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          # 使用 github.run_id 确保工件名称的唯一性，防止并发冲突
           name: hugo-build-${{ github.run_id }}
           path: public/
           retention-days: 7
 
-  # 2. 部署到 Staging 的触发器
   deploy_staging:
     needs: build
     name: Deploy to Staging
-    if: github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging')
+    if: (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'staging') || (github.event_name == 'push' && github.ref == 'refs/heads/develop')
     uses: ./.github/workflows/reusable-deploy.yml
     with:
       environment_name: staging
-      # ✅ FIX: Use vars context which is available in reusable workflow calls
       environment_url: ${{ vars.STAGING_URL }}
       artifact_name: hugo-build-${{ github.run_id }}
     secrets:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
-  # 3. 部署到 Production 的触发器
   deploy_production:
     needs: build
     name: Deploy to Production
-    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+    if: (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production') || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     uses: ./.github/workflows/reusable-deploy.yml
     with:
       environment_name: production
-      # ✅ FIX: Use vars context which is available in reusable workflow calls
       environment_url: ${{ vars.PRODUCTION_URL }}
       artifact_name: hugo-build-${{ github.run_id }}
     secrets:

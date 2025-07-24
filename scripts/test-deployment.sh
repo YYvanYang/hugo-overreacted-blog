@@ -223,19 +223,15 @@ fi
 echo -e "${BLUE}⚡ Testing performance...${NC}"
 
 # Response time test
-RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' -m $TIMEOUT "$SITE_URL" || echo "0")
-if [ "$RESPONSE_TIME" != "0" ]; then
-    if (( $(echo "$RESPONSE_TIME < 1.0" | bc -l 2>/dev/null || echo "0") )); then
-        print_test_result "Response Time" "PASS" "${RESPONSE_TIME}s (excellent)"
-    elif (( $(echo "$RESPONSE_TIME < 2.0" | bc -l 2>/dev/null || echo "0") )); then
-        print_test_result "Response Time" "PASS" "${RESPONSE_TIME}s (good)"
-    elif (( $(echo "$RESPONSE_TIME < 5.0" | bc -l 2>/dev/null || echo "0") )); then
-        print_test_result "Response Time" "WARN" "${RESPONSE_TIME}s (acceptable)"
-    else
-        print_test_result "Response Time" "FAIL" "${RESPONSE_TIME}s (too slow)"
-    fi
+RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}' -m $TIMEOUT "$SITE_URL" || echo "999")
+if [ "$(awk -v time="$RESPONSE_TIME" 'BEGIN { print (time < 1.0) }')" -eq 1 ]; then
+    print_test_result "Response Time" "PASS" "${RESPONSE_TIME}s (excellent)"
+elif [ "$(awk -v time="$RESPONSE_TIME" 'BEGIN { print (time < 2.0) }')" -eq 1 ]; then
+    print_test_result "Response Time" "PASS" "${RESPONSE_TIME}s (good)"
+elif [ "$(awk -v time="$RESPONSE_TIME" 'BEGIN { print (time < 5.0) }')" -eq 1 ]; then
+    print_test_result "Response Time" "WARN" "${RESPONSE_TIME}s (acceptable)"
 else
-    print_test_result "Response Time" "FAIL" "Could not measure response time"
+    print_test_result "Response Time" "FAIL" "${RESPONSE_TIME}s (too slow)"
 fi
 
 # Content size test
