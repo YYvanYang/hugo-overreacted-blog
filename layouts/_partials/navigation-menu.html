@@ -32,29 +32,40 @@
       target="_blank" {{ end }} {{- with .Params.rel }} rel="{{ . }}" {{ else }} rel="external noopener noreferrer" {{
       end }} {{- end }} {{- if $isActive }} class="nav-link active focus-visible" aria-current="page" {{- else if
       $isAncestor }} class="nav-link ancestor focus-visible" aria-current="true" {{- else }}
-      class="nav-link focus-visible" {{- end }} {{- if $hasChildren }} aria-haspopup="true" aria-expanded="false" {{-
-      end }}>
+      class="nav-link focus-visible" {{- end }} {{- if $hasChildren }} aria-haspopup="true" aria-expanded="false" 
+      aria-describedby="submenu-{{ .Name | urlize }}-desc" role="button" {{- end }}
+      {{- if $hasChildren }} tabindex="0" {{- end }}>
       {{ .Name }}
       {{- if $isExternal }}
       <svg style="width: 0.875rem; height: 0.875rem; margin-left: var(--space-1);" fill="none" stroke="currentColor"
-        viewBox="0 0 24 24" aria-hidden="true">
+        viewBox="0 0 24 24" aria-hidden="true" role="img" aria-label="External link">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
       </svg>
       <span class="sr-only">(opens in new tab)</span>
       {{- end }}
       {{- if $hasChildren }}
-      <svg
+      <svg class="dropdown-arrow"
         style="width: 0.875rem; height: 0.875rem; margin-left: var(--space-1); transition: transform var(--transition-fast);"
-        fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" role="img" aria-label="Submenu indicator">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
       </svg>
       {{- end }}
     </a>
+    
+    {{- if $hasChildren }}
+    <span id="submenu-{{ .Name | urlize }}-desc" class="sr-only">
+      Press Enter or Space to expand submenu, use arrow keys to navigate
+    </span>
+    {{- end }}
 
     {{/* Dropdown menu for children */}}
     {{- if $hasChildren }}
-    <div class="nav-submenu" aria-hidden="true">
+    <div class="nav-submenu" 
+         role="menu" 
+         aria-hidden="true" 
+         aria-labelledby="nav-{{ .Name | urlize }}"
+         id="submenu-{{ .Name | urlize }}">
       {{- range .Children }}
       {{- $childIsExternal := strings.HasPrefix .URL "http" }}
       {{- $childIsActive := false }}
@@ -63,14 +74,17 @@
       {{- $childIsActive = true }}
       {{- end }}
 
-      <a href="{{ .URL | relURL }}" {{- if $childIsExternal }} {{- with .Params.target }} target="{{ . }}" {{ else }}
-        target="_blank" {{ end }} {{- with .Params.rel }} rel="{{ . }}" {{ else }} rel="external noopener noreferrer" {{
-        end }} {{- end }} {{- if $childIsActive }} class="nav-sublink active focus-visible" aria-current="page" {{- else
-        }} class="nav-sublink focus-visible" {{- end }}>
+      <a href="{{ .URL | relURL }}" 
+         role="menuitem"
+         tabindex="-1"
+         {{- if $childIsExternal }} {{- with .Params.target }} target="{{ . }}" {{ else }}
+         target="_blank" {{ end }} {{- with .Params.rel }} rel="{{ . }}" {{ else }} rel="external noopener noreferrer" {{
+         end }} {{- end }} {{- if $childIsActive }} class="nav-sublink active focus-visible" aria-current="page" {{- else
+         }} class="nav-sublink focus-visible" {{- end }}>
         {{ .Name }}
         {{- if $childIsExternal }}
         <svg style="width: 0.75rem; height: 0.75rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-          aria-hidden="true">
+          aria-hidden="true" role="img" aria-label="External link">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
         </svg>
@@ -187,14 +201,28 @@
     box-shadow: none;
   }
 
-  /* Dropdown arrow rotation */
-  .nav-link svg:last-child {
+  /* Dropdown arrow rotation and visual feedback */
+  .nav-link .dropdown-arrow {
     transition: transform var(--transition-fast);
   }
 
-  .nav-item-dropdown:hover .nav-link svg:last-child,
-  .nav-item-dropdown:focus-within .nav-link svg:last-child {
+  .nav-item-dropdown:hover .nav-link .dropdown-arrow,
+  .nav-item-dropdown:focus-within .nav-link .dropdown-arrow,
+  .nav-item-dropdown.dropdown-open .nav-link .dropdown-arrow {
     transform: rotate(180deg);
+  }
+  
+  /* Enhanced visual feedback for dropdown states */
+  .nav-item-dropdown.dropdown-open .nav-link {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-link);
+  }
+  
+  /* Improved submenu positioning and visibility */
+  .nav-item-dropdown.dropdown-open .nav-submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
   }
 
   /* Submenu base styles */
@@ -309,7 +337,7 @@
   document.addEventListener('DOMContentLoaded', function () {
     // Mobile menu functionality is handled by mobile-navigation.js
 
-    // Enhanced dropdown menu functionality
+    // Enhanced dropdown menu functionality with improved accessibility
     const dropdownItems = document.querySelectorAll('.nav-item-dropdown');
 
     dropdownItems.forEach(function (dropdown) {
@@ -317,6 +345,10 @@
       const submenu = dropdown.querySelector('.nav-submenu');
 
       if (link && submenu) {
+        // Set initial ARIA attributes
+        link.setAttribute('id', 'nav-' + link.textContent.trim().toLowerCase().replace(/\s+/g, '-'));
+        submenu.setAttribute('aria-labelledby', link.id);
+        
         // Click handling for mobile/touch devices
         link.addEventListener('click', function (event) {
           // Only prevent default on mobile or when dropdown is closed
@@ -326,48 +358,137 @@
           }
         });
 
-        // Keyboard navigation
+        // Enhanced keyboard navigation with ARIA support
         link.addEventListener('keydown', function (event) {
           switch (event.key) {
             case 'Enter':
             case ' ':
               event.preventDefault();
               toggleDropdown(dropdown, link, submenu);
+              announceToScreenReader(
+                dropdown.classList.contains('dropdown-open') 
+                  ? 'Submenu opened' 
+                  : 'Submenu closed'
+              );
               break;
             case 'ArrowDown':
               event.preventDefault();
               openDropdown(dropdown, link, submenu);
               focusFirstSubmenuItem(submenu);
+              announceToScreenReader('Submenu opened, navigating to first item');
+              break;
+            case 'ArrowRight':
+              if (!dropdown.classList.contains('dropdown-open')) {
+                event.preventDefault();
+                openDropdown(dropdown, link, submenu);
+                focusFirstSubmenuItem(submenu);
+                announceToScreenReader('Submenu opened, navigating to first item');
+              }
               break;
             case 'Escape':
-              closeDropdown(dropdown, link, submenu);
-              link.focus();
+              if (dropdown.classList.contains('dropdown-open')) {
+                event.preventDefault();
+                closeDropdown(dropdown, link, submenu);
+                link.focus();
+                announceToScreenReader('Submenu closed, returned to main menu');
+              }
+              break;
+            case 'Home':
+              // Focus first navigation item
+              event.preventDefault();
+              const firstNavLink = document.querySelector('.nav-link');
+              if (firstNavLink) {
+                firstNavLink.focus();
+                announceToScreenReader('Moved to first navigation item');
+              }
+              break;
+            case 'End':
+              // Focus last navigation item
+              event.preventDefault();
+              const navLinks = document.querySelectorAll('.nav-link');
+              const lastNavLink = navLinks[navLinks.length - 1];
+              if (lastNavLink) {
+                lastNavLink.focus();
+                announceToScreenReader('Moved to last navigation item');
+              }
               break;
           }
         });
 
-        // Submenu keyboard navigation
+        // Enhanced submenu keyboard navigation
         const submenuLinks = submenu.querySelectorAll('.nav-sublink');
         submenuLinks.forEach(function (submenuLink, index) {
+          // Set tabindex for proper focus management
+          submenuLink.setAttribute('tabindex', '-1');
+          
           submenuLink.addEventListener('keydown', function (event) {
             switch (event.key) {
               case 'ArrowDown':
                 event.preventDefault();
                 const nextIndex = (index + 1) % submenuLinks.length;
                 submenuLinks[nextIndex].focus();
+                announceToScreenReader(`Item ${nextIndex + 1} of ${submenuLinks.length}`);
                 break;
               case 'ArrowUp':
                 event.preventDefault();
                 const prevIndex = index === 0 ? submenuLinks.length - 1 : index - 1;
                 submenuLinks[prevIndex].focus();
+                announceToScreenReader(`Item ${prevIndex + 1} of ${submenuLinks.length}`);
                 break;
+              case 'ArrowLeft':
               case 'Escape':
                 event.preventDefault();
                 closeDropdown(dropdown, link, submenu);
                 link.focus();
+                announceToScreenReader('Returned to main menu');
+                break;
+              case 'Home':
+                event.preventDefault();
+                submenuLinks[0].focus();
+                announceToScreenReader('Moved to first submenu item');
+                break;
+              case 'End':
+                event.preventDefault();
+                submenuLinks[submenuLinks.length - 1].focus();
+                announceToScreenReader('Moved to last submenu item');
+                break;
+              case 'Tab':
+                // Allow tab to move to next focusable element outside menu
+                closeDropdown(dropdown, link, submenu);
                 break;
             }
           });
+          
+          // Add focus and blur handlers for better UX
+          submenuLink.addEventListener('focus', function() {
+            submenuLink.setAttribute('tabindex', '0');
+          });
+          
+          submenuLink.addEventListener('blur', function() {
+            submenuLink.setAttribute('tabindex', '-1');
+          });
+        });
+        
+        // Mouse hover handling with delay for better UX
+        let hoverTimeout;
+        
+        dropdown.addEventListener('mouseenter', function() {
+          clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(() => {
+            if (!dropdown.classList.contains('dropdown-open')) {
+              openDropdown(dropdown, link, submenu);
+            }
+          }, 150); // Small delay to prevent accidental opens
+        });
+        
+        dropdown.addEventListener('mouseleave', function() {
+          clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(() => {
+            if (dropdown.classList.contains('dropdown-open') && 
+                !dropdown.contains(document.activeElement)) {
+              closeDropdown(dropdown, link, submenu);
+            }
+          }, 300); // Longer delay for mouse users
         });
       }
     });
@@ -401,7 +522,7 @@
       }
     });
 
-    // Dropdown utility functions
+    // Enhanced dropdown utility functions with accessibility support
     function toggleDropdown(dropdown, link, submenu) {
       if (dropdown.classList.contains('dropdown-open')) {
         closeDropdown(dropdown, link, submenu);
@@ -424,19 +545,72 @@
       dropdown.classList.add('dropdown-open');
       link.setAttribute('aria-expanded', 'true');
       submenu.setAttribute('aria-hidden', 'false');
+      
+      // Update submenu items tabindex for keyboard navigation
+      const submenuLinks = submenu.querySelectorAll('.nav-sublink');
+      submenuLinks.forEach((item, index) => {
+        item.setAttribute('tabindex', index === 0 ? '0' : '-1');
+      });
+      
+      // Add visual indicator for screen readers
+      const menuName = link.textContent.trim();
+      announceToScreenReader(`${menuName} submenu opened with ${submenuLinks.length} items`);
     }
 
     function closeDropdown(dropdown, link, submenu) {
       dropdown.classList.remove('dropdown-open');
       link.setAttribute('aria-expanded', 'false');
       submenu.setAttribute('aria-hidden', 'true');
+      
+      // Reset submenu items tabindex
+      const submenuLinks = submenu.querySelectorAll('.nav-sublink');
+      submenuLinks.forEach(item => {
+        item.setAttribute('tabindex', '-1');
+      });
+      
+      // Announce closure to screen readers
+      const menuName = link.textContent.trim();
+      announceToScreenReader(`${menuName} submenu closed`);
     }
 
     function focusFirstSubmenuItem(submenu) {
       const firstLink = submenu.querySelector('.nav-sublink');
       if (firstLink) {
+        firstLink.setAttribute('tabindex', '0');
         firstLink.focus();
+        
+        // Announce current position
+        const submenuLinks = submenu.querySelectorAll('.nav-sublink');
+        announceToScreenReader(`Focused on first item: ${firstLink.textContent.trim()}. ${submenuLinks.length} items total`);
       }
+    }
+    
+    // Screen reader announcement utility
+    function announceToScreenReader(message, priority = 'polite') {
+      // Use the global accessibility manager if available
+      if (window.accessibilityManager && window.accessibilityManager.announceToScreenReader) {
+        window.accessibilityManager.announceToScreenReader(message, priority);
+        return;
+      }
+      
+      // Fallback: use live region directly
+      let liveRegion = document.getElementById('live-region');
+      if (!liveRegion) {
+        liveRegion = document.createElement('div');
+        liveRegion.id = 'live-region';
+        liveRegion.setAttribute('aria-live', 'polite');
+        liveRegion.setAttribute('aria-atomic', 'true');
+        liveRegion.className = 'sr-only';
+        document.body.appendChild(liveRegion);
+      }
+      
+      liveRegion.setAttribute('aria-live', priority);
+      liveRegion.textContent = message;
+      
+      // Clear after announcement
+      setTimeout(() => {
+        liveRegion.textContent = '';
+      }, 1000);
     }
   });
 </script>

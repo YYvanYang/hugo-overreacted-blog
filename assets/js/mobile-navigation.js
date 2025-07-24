@@ -315,10 +315,18 @@ class MobileNavigation {
       
       console.log('Mobile Navigation: Menu toggled successfully to', this.isOpen);
       
-      // Announce to screen readers
+      // Enhanced screen reader announcements
       if (window.accessibilityManager && window.accessibilityManager.announceToScreenReader) {
-        const message = this.isOpen ? 'Mobile menu opened' : 'Mobile menu closed';
+        const menuItems = this.menu.querySelectorAll('a, button').length;
+        const message = this.isOpen 
+          ? `Mobile menu opened with ${menuItems} navigation items` 
+          : 'Mobile menu closed';
         window.accessibilityManager.announceToScreenReader(message);
+      } else {
+        // Fallback announcement
+        this.announceToScreenReader(
+          this.isOpen ? 'Mobile menu opened' : 'Mobile menu closed'
+        );
       }
       
     } catch (error) {
@@ -520,6 +528,29 @@ class MobileNavigation {
     }
   }
   
+  /**
+   * Announce message to screen readers (fallback method)
+   */
+  announceToScreenReader(message, priority = 'polite') {
+    let liveRegion = document.getElementById('live-region');
+    if (!liveRegion) {
+      liveRegion = document.createElement('div');
+      liveRegion.id = 'live-region';
+      liveRegion.setAttribute('aria-live', 'polite');
+      liveRegion.setAttribute('aria-atomic', 'true');
+      liveRegion.className = 'sr-only';
+      document.body.appendChild(liveRegion);
+    }
+    
+    liveRegion.setAttribute('aria-live', priority);
+    liveRegion.textContent = message;
+    
+    // Clear after announcement
+    setTimeout(() => {
+      liveRegion.textContent = '';
+    }, 1000);
+  }
+
   /**
    * Get the current state of the mobile menu
    * @returns {Object} Current state information

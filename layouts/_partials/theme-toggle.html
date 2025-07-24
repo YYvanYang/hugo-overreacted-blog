@@ -11,8 +11,10 @@
   class="theme-toggle focus-visible"
   aria-label="Switch to dark mode"
   aria-pressed="false"
+  aria-describedby="{{ $buttonId }}-desc"
   title="Toggle theme (Ctrl+Shift+L)"
   data-tooltip="Toggle between light and dark mode"
+  role="switch"
   style="background: none; border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-2); cursor: pointer; color: var(--color-text); transition: all var(--transition-fast); width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;"
   onmouseover="this.style.backgroundColor='var(--color-bg-secondary)'; this.style.borderColor='var(--color-primary)';"
   onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='var(--color-border)';"
@@ -23,3 +25,6 @@
   </svg>
   <span class="sr-only">Current theme: <span class="theme-status">light</span></span>
 </button>
+<span id="{{ $buttonId }}-desc" class="sr-only">
+  Toggle between light and dark theme. Current theme will be announced when changed. Keyboard shortcut: Ctrl+Shift+L
+</span>

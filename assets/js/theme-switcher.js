@@ -298,15 +298,23 @@ class ThemeSwitcher {
   }
   
   /**
-   * Announce theme change to screen readers
+   * Announce theme change to screen readers with enhanced context
    * @param {string} theme - The new theme
    */
   announceThemeChange(theme) {
+    // Use global accessibility manager if available
+    if (window.accessibilityManager && window.accessibilityManager.announceToScreenReader) {
+      const message = `Theme switched to ${theme} mode. Press Ctrl+Shift+L to toggle theme.`;
+      window.accessibilityManager.announceToScreenReader(message);
+      return;
+    }
+    
+    // Fallback announcement method
     const announcement = document.createElement('div');
     announcement.setAttribute('aria-live', 'polite');
     announcement.setAttribute('aria-atomic', 'true');
     announcement.className = 'sr-only';
-    announcement.textContent = `Switched to ${theme} mode`;
+    announcement.textContent = `Theme switched to ${theme} mode. Press Ctrl+Shift+L to toggle theme.`;
     
     document.body.appendChild(announcement);
     
