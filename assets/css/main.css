@@ -411,6 +411,26 @@ html.dark {
     border-color: var(--color-primary);
   }
   
+  .theme-toggle:focus {
+    outline: none;
+  }
+  
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+  
+  /* Site title link focus styles */
+  .site-title-link:focus {
+    outline: none;
+  }
+  
+  .site-title-link:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+  
   /* Skip navigation links - Requirement 7.1 */
   .skip-links {
     position: absolute;
@@ -455,16 +475,15 @@ html.dark {
   }
   
   /* Enhanced focus styles for accessibility - WCAG 2.1 compliant */
-  .focus-visible,
-  *:focus-visible {
+  /* Only apply focus styles when actually focused, not just having the class */
+  .focus-visible:focus-visible {
     outline: 2px solid var(--color-focus);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }
   
   /* High contrast focus for better visibility */
-  .focus-visible:focus-visible,
-  *:focus-visible {
+  .focus-visible:focus-visible {
     outline: 3px solid var(--color-focus);
     outline-offset: 2px;
     box-shadow: 0 0 0 1px var(--color-bg), 0 0 0 4px var(--color-focus);
@@ -472,14 +491,20 @@ html.dark {
   
   /* Focus styles for interactive elements */
   button:focus-visible,
-  a:focus-visible,
   input:focus-visible,
   textarea:focus-visible,
   select:focus-visible,
   [tabindex]:focus-visible {
-    outline: 3px solid var(--color-focus);
+    outline: 2px solid var(--color-focus);
     outline-offset: 2px;
-    box-shadow: 0 0 0 1px var(--color-bg), 0 0 0 4px var(--color-focus);
+    box-shadow: 0 0 0 1px var(--color-bg), 0 0 0 3px var(--color-focus);
+  }
+  
+  /* More subtle focus for links unless they're buttons */
+  a:focus-visible:not(.btn):not(.nav-link):not(.skip-link) {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
   }
   
   /* Remove default focus styles when using custom ones */
@@ -585,8 +610,17 @@ html.dark {
   }
   
   /* Enhanced focus indicators for high contrast */
-  .focus-visible:focus-visible,
-  *:focus-visible {
+  .focus-visible:focus-visible {
+    outline: 4px solid var(--color-focus);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 6px var(--color-focus);
+  }
+  
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
     outline: 4px solid var(--color-focus);
     outline-offset: 2px;
     box-shadow: 0 0 0 2px var(--color-bg), 0 0 0 6px var(--color-focus);

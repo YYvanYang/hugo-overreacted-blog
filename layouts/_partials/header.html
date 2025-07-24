@@ -8,7 +8,7 @@
            style="font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--color-heading); text-decoration: none; transition: color var(--transition-fast);"
            onmouseover="this.style.color='var(--color-link)'"
            onmouseout="this.style.color='var(--color-heading)'"
-           class="focus-visible">
+           class="site-title-link">
           {{ site.Title }}
         </a>
       </div>
@@ -23,7 +23,7 @@
       </div>
       
       {{/* Mobile Navigation Toggle */}}
-      <div class="nav-mobile" style="display: none;">
+      <div class="nav-mobile">
         <button 
           id="mobile-menu-toggle" 
           type="button"
@@ -60,17 +60,30 @@
 
 {{/* Responsive CSS */}}
 <style>
+  /* Default: hide mobile navigation, show desktop */
+  .nav-mobile {
+    display: none;
+  }
+  
+  .nav-desktop {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+  }
+  
+  /* Mobile: hide desktop navigation, show mobile */
   @media (max-width: 768px) {
     .nav-desktop {
-      display: none !important;
+      display: none;
     }
     .nav-mobile {
-      display: flex !important;
+      display: flex;
       align-items: center;
       gap: var(--space-3);
     }
   }
   
+  /* Mobile menu styles */
   .mobile-menu.hidden {
     display: none;
   }
