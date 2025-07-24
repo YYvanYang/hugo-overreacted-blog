@@ -24,7 +24,7 @@ jobs:
     name: Deploy to ${{ inputs.environment_name }}
     environment:
       name: ${{ inputs.environment_name }}
-      url: ${{ inputs.environment_url }}
+      url: ${{ startsWith(inputs.environment_url, 'http') && inputs.environment_url || format('https://{0}', inputs.environment_url) }}
     
     steps:
       - name: Checkout repository
@@ -50,6 +50,11 @@ jobs:
           echo "Waiting 15s for deployment to propagate..."
           sleep 15
           
-          echo "Running validation tests on ${{ inputs.environment_url }}"
-          # 将 SITE_URL 环境变量传递给测试脚本
-          SITE_URL=${{ inputs.environment_url }} ./scripts/test-deployment.sh
+          # Ensure URL has https:// protocol
+          URL="${{ inputs.environment_url }}"
+          if [[ ! "$URL" =~ ^https?:// ]]; then
+            URL="https://$URL"
+          fi
+          
+          echo "Running validation tests on $URL"
+          SITE_URL="$URL" ./scripts/test-deployment.sh
