@@ -282,8 +282,10 @@ class ThemeSwitcher {
       const moonIcon = toggleButton.querySelector('.moon-icon');
       
       if (sunIcon && moonIcon) {
-        sunIcon.classList.toggle('hidden', isDark);
-        moonIcon.classList.toggle('hidden', !isDark);
+        // Show moon icon in light mode (to indicate switching to dark)
+        // Show sun icon in dark mode (to indicate switching to light)
+        moonIcon.classList.toggle('hidden', isDark);
+        sunIcon.classList.toggle('hidden', !isDark);
       }
       
       // Update pressed state for screen readers
