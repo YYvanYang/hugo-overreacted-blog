@@ -1,40 +1,32 @@
-{{/* Header partial with responsive navigation and theme toggle - Requirements 7.1, 7.2, 7.3 */}}
-<header role="banner" style="border-bottom: 1px solid var(--color-border);">
-  <div class="container" style="padding-top: var(--space-6); padding-bottom: var(--space-6);">
-    <nav id="navigation" role="navigation" aria-label="Main navigation" style="display: flex; align-items: center; justify-content: space-between;">
-      {{/* Site title/logo */}}
-      <div>
-        <a href="{{ "/" | relURL }}" 
-           style="font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--color-heading); text-decoration: none; transition: color var(--transition-fast);"
-           onmouseover="this.style.color='var(--color-link)'"
-           onmouseout="this.style.color='var(--color-heading)'"
-           class="site-title-link">
-          {{ site.Title }}
-        </a>
-      </div>
-      
-      {{/* Desktop Navigation */}}
+{{/* Header with responsive navigation and theme toggle - using CSS variables */}}
+<header style="padding: var(--space-6) var(--space-6); border-bottom: 1px solid var(--color-border);">
+  <div class="container" style="display: flex; align-items: center; justify-content: space-between;">
+    {{/* Site title/logo */}}
+    <div>
+      <a href="{{ .Site.BaseURL | relURL }}" 
+         class="site-title-link"
+         style="font-size: var(--text-2xl); font-weight: var(--font-bold); color: var(--color-heading); text-decoration: none; transition: color var(--transition-fast);">
+        {{ .Site.Title }}
+      </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: var(--space-6);">
+      {{/* Desktop navigation */}}
       <div class="nav-desktop">
-        {{/* Main navigation menu with hierarchical support */}}
         {{ partial "navigation-menu.html" . }}
-        
-        {{/* Theme toggle button */}}
-        {{ partial "theme-toggle.html" . }}
       </div>
-      
-      {{/* Mobile Navigation Toggle */}}
+
+      {{/* Theme toggle button */}}
+      {{ partial "theme-toggle.html" . }}
+
+      {{/* Mobile hamburger button */}}
       <div class="nav-mobile">
-        <button 
-          id="mobile-menu-toggle" 
-          type="button"
-          class="mobile-menu-toggle focus-visible"
-          aria-label="Toggle mobile menu"
-          aria-expanded="false"
-          aria-controls="mobile-menu"
-          aria-describedby="mobile-menu-desc"
-          role="button"
-          style="background: none; border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-2); cursor: pointer; color: var(--color-text); transition: all var(--transition-fast); width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;"
-        >
+        <button id="mobile-menu-toggle" 
+                class="mobile-menu-toggle focus-visible"
+                aria-label="Open main menu" 
+                aria-controls="mobile-menu" 
+                aria-expanded="false"
+                style="background: none; border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-2); cursor: pointer; color: var(--color-text); transition: all var(--transition-fast); width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;">
           <svg class="menu-icon" style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
           </svg>
@@ -42,27 +34,17 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
           </svg>
         </button>
-        <span id="mobile-menu-desc" class="sr-only">
-          Opens mobile navigation menu with site navigation links. Press Escape to close when open.
-        </span>
-        
-        {{/* Theme toggle for mobile */}}
-        {{ partial "theme-toggle.html" (dict "context" . "mobile" true) }}
       </div>
-    </nav>
-    
-    {{/* Mobile Menu */}}
-    <div 
-      id="mobile-menu" 
-      class="mobile-menu hidden"
-      role="navigation"
-      aria-label="Mobile navigation menu"
-      aria-hidden="true"
-      aria-labelledby="mobile-menu-toggle"
-      style="margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--color-border);"
-    >
-      {{ partial "navigation-menu.html" (dict "context" . "mobile" true) }}
     </div>
+  </div>
+
+  {{/* Mobile menu panel (default hidden) */}}
+  <div id="mobile-menu" 
+       class="mobile-menu hidden"
+       aria-hidden="true"
+       aria-labelledby="mobile-menu-toggle"
+       style="margin-top: var(--space-4); padding-top: var(--space-4); border-top: 1px solid var(--color-border);">
+    {{ partial "navigation-menu.html" (dict "context" . "mobile" true) }}
   </div>
 </header>
 
@@ -76,7 +58,6 @@
   .nav-desktop {
     display: flex !important;
     align-items: center;
-    gap: var(--space-6);
   }
   
   /* Mobile: hide desktop navigation, show mobile */
@@ -87,7 +68,6 @@
     .nav-mobile {
       display: flex !important;
       align-items: center;
-      gap: var(--space-3);
     }
   }
   
@@ -98,16 +78,5 @@
   
   .mobile-menu {
     display: block;
-  }
-  
-  .mobile-menu .nav-menu {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-3);
-  }
-  
-  .mobile-menu .nav-submenu {
-    margin-left: var(--space-4);
-    margin-top: var(--space-2);
   }
 </style>
