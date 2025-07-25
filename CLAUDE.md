@@ -85,7 +85,8 @@ This prevents "Hugo not installed" errors in CI while maintaining local developm
 - `layouts/page.html` - Single page template
 - `layouts/section.html` - Section list template
 - `layouts/robots.txt` - Dynamic robots.txt template with environment-aware sitemap URLs
-- `layouts/_partials/` - Reusable components (head, header, footer, SEO)
+- `layouts/_partials/` - Reusable components (head, header, footer, SEO, critical-css)
+- `layouts/_partials/critical-css.html` - Inline critical CSS for FOUC prevention
 - `layouts/_markup/` - Markdown render hooks for enhanced content processing
 
 ### Theme and Styling
@@ -165,6 +166,9 @@ hugo new posts/my-new-post.md
 - Lazy loading for images and non-critical assets
 - CDN distribution via Cloudflare Workers global network
 - Integrity hashes for security and cache validation
+- **FOUC Prevention**: Critical CSS inlined in `<head>` for immediate layout rendering
+- **Optimized Loading Sequence**: 5-phase loading strategy (critical CSS → theme script → complete CSS → additional resources)
+- **Dual CSS Strategy**: `templates.Defer` for build correctness + critical CSS for runtime performance
 
 ## Common Issues and Solutions
 
@@ -234,7 +238,22 @@ npm install tailwindcss @tailwindcss/cli     # ✅ Correct - dependencies
 - ❌ **Previous**: `echo "$RESPONSE_TIME < 2.0" | bc -l`
 - **Benefit**: Enhanced cross-platform compatibility, no external dependency on `bc`
 
+### FOUC (Flash of Unstyled Content) Prevention
+**Implementation**: Dual CSS loading strategy for optimal performance
+- ✅ **Critical CSS**: Inline styles in `layouts/_partials/critical-css.html` for immediate layout
+- ✅ **Complete CSS**: Processed via `templates.Defer` for full Tailwind JIT integration
+- ✅ **Theme Detection**: Inline script in `<head>` prevents theme switching flash
+- ✅ **Loading Sequence**: 5-phase optimization (metadata → critical CSS → theme script → complete CSS → additional resources)
+
+**Key Benefits**:
+- Zero FOUC on initial page load
+- Instant theme switching without flash
+- Maintains Hugo + Tailwind CSS v4.1 best practices
+- Ensures CSS completeness through `templates.Defer`
+
+**Reference**: See `docs/development/hugo-fouc-optimization-guide.md` for complete implementation details.
+
 ## Maintenance Notes
 
 - **Review Frequency**: This file should be reviewed and updated after major architectural changes or when new development patterns emerge
-- **Last Updated**: 2025-07-25 - Added code style preferences section per Claude Code memory best practices
+- **Last Updated**: 2025-07-25 - Added FOUC prevention implementation and critical CSS architecture documentation

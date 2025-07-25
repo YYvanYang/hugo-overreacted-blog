@@ -1,6 +1,15 @@
-{{/* CSS processing partial for Tailwind CSS v4.1 integration */}}
-{{/* Enhanced asset processing pipeline with optimization and cache busting */}}
-{{/* This partial should be called with templates.Defer for proper asset processing */}}
+{{/* 
+  CSS Processing Partial - Complete CSS Loading with templates.Defer
+  
+  This partial handles the loading of complete CSS files with optimization.
+  Critical CSS is handled separately in critical-css.html for immediate layout.
+  
+  Features:
+  - Templates.Defer integration for TailwindCSS v4.1+ JIT engine
+  - Async loading with preload + onload pattern for non-blocking rendering  
+  - Production optimization with minification and fingerprinting
+  - Syntax highlighting CSS with theme-aware media queries
+*/}}
 
 {{ with resources.Get "css/main.css" }}
   {{ $opts := dict "minify" (not hugo.IsDevelopment) }}
@@ -46,43 +55,7 @@
   {{ end }}
 {{ end }}
 
-{{/* Add critical CSS for above-the-fold content to prevent layout shift */}}
-<style>
-  /* Critical CSS for skip link and basic layout */
-  .skip-link {
-    position: absolute;
-    left: -10000px;
-    top: auto;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-  }
-  
-  .skip-link:focus {
-    position: absolute;
-    left: 6px;
-    top: 7px;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    z-index: 999999;
-  }
-  
-  /* Ensure proper focus indicators for accessibility */
-  *:focus {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-  }
-  
-  /* Basic responsive typography */
-  html {
-    font-size: 16px;
-    line-height: 1.6;
-  }
-  
-  @media (min-width: 768px) {
-    html {
-      font-size: 18px;
-    }
-  }
-</style>
+{{/* 
+  Note: Critical CSS is now handled in critical-css.html for better separation of concerns.
+  This file focuses solely on loading complete CSS assets via templates.Defer.
+*/}}
