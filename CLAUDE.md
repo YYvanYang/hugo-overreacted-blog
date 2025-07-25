@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Code Style Preferences
+
+- Use 2-space indentation for HTML templates and JavaScript
+- Use kebab-case for CSS classes and IDs
+- Follow Hugo's template naming conventions (lowercase with hyphens)
+- Maintain consistent commenting style in JavaScript (JSDoc format)
+- Use semantic HTML5 elements where appropriate
+
 ## Project Overview
 
 This is a Hugo Overreacted Blog - a minimalist blog template inspired by overreacted.io, built with Hugo static site generator, Tailwind CSS v4.1, and deployed on Cloudflare Workers. The project features a sophisticated build pipeline with asset optimization, dual-theme support, and comprehensive CI/CD automation.
@@ -22,7 +30,6 @@ This is a Hugo Overreacted Blog - a minimalist blog template inspired by overrea
 - `npm run test:all` - Run all tests (system + deployment)
 - `npm run test` - Alias for system testing
 - `npm run validate:build` - Validate build output and critical files
-- `npm run version:check` - Check tool versions (Hugo, Node.js, npm)
 
 ### Deployment Commands
 - `npm run deploy:staging` - Deploy to Cloudflare Workers staging
@@ -101,13 +108,6 @@ Key features:
 
 ### Package Configuration (`package.json`)
 - Node.js v18+ and npm v9+ required
-- **Reorganized NPM Scripts**: Logical grouping with comment separators for better organization
-  - `//-- BUILD TASKS --//`: build:assets, build:dev, build:prod, build
-  - `//-- DEVELOPMENT --//`: dev, serve, clean
-  - `//-- VALIDATION & TESTING --//`: validate:build, test:system, test:deployment, test:all, test
-  - `//-- DEPLOYMENT --//`: deploy:staging, deploy:production, deploy:dry-run, deploy
-  - `//-- CI/CD INTEGRATION --//`: ci:build, ci:test, ci:deploy:staging, ci:deploy:prod
-  - `//-- UTILITIES --//`: version:check
 - Key dependencies: Tailwind CSS v4.1, PostCSS, Terser, Wrangler
 
 ### Wrangler Configuration (`wrangler.toml`)
@@ -207,9 +207,7 @@ npm install tailwindcss @tailwindcss/cli     # ✅ Correct - dependencies
 
 ### Development Environment
 - Ensure Hugo extended version is installed
-- Node.js v18+ and npm v9+ required
 - Run `npm install` to install all dependencies
-- Use `npm run version:check` to verify tool versions
 
 ### GitHub Actions Reusable Workflow Issues
 **Problem**: `Unrecognized named-value: 'env'` when calling reusable workflows
@@ -235,3 +233,8 @@ npm install tailwindcss @tailwindcss/cli     # ✅ Correct - dependencies
 - ✅ **Current**: `awk -v time="$RESPONSE_TIME" 'BEGIN { print (time < 2.0) }'`
 - ❌ **Previous**: `echo "$RESPONSE_TIME < 2.0" | bc -l`
 - **Benefit**: Enhanced cross-platform compatibility, no external dependency on `bc`
+
+## Maintenance Notes
+
+- **Review Frequency**: This file should be reviewed and updated after major architectural changes or when new development patterns emerge
+- **Last Updated**: 2025-07-25 - Added code style preferences section per Claude Code memory best practices

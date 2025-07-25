@@ -1,102 +1,114 @@
-# Hugo Overreacted Blog Template
+# Hugo Overreacted Blog
 
-A production-ready blog template inspired by [overreacted.io](https://overreacted.io/). Built with Hugo, Tailwind CSS v4.1, and deployed on Cloudflare Workers.
+<div align="center">
 
-[![Hugo](https://img.shields.io/badge/Hugo-0.148.1+-blue.svg)](https://gohugo.io/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1-38B2AC.svg)](https://tailwindcss.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Hugo](https://img.shields.io/badge/Hugo-0.148.1+-FF4088?logo=hugo&logoColor=white)](https://gohugo.io/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-F38020?logo=cloudflare&logoColor=white)](https://workers.cloudflare.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+**A minimalist blog template inspired by [overreacted.io](https://overreacted.io/)**
+
+[Live Demo](https://hugo-overreacted-blog-prod.zjlgdx.workers.dev/) · [Documentation](CLAUDE.md) · [Report Bug](https://github.com/YYvanYang/hugo-overreacted-blog/issues)
+
+</div>
 
 ## Features
 
-- **Minimalist Design** - Clean, focused reading experience
-- **Dual Theme Support** - Light and dark modes with instant switching
-- **Performance Optimized** - 95+ Lighthouse score, sub-second loading
-- **SEO Ready** - Complete meta tags, structured data, dynamic sitemap
-- **Fully Responsive** - Mobile-first design with accessibility support
-- **Modern Workflow** - GitHub Actions CI/CD with automated testing
+- 🎨 **Minimalist Design** — Clean, distraction-free reading experience
+- 🌓 **Dual Themes** — Light/dark mode with system preference detection
+- ⚡ **Performance First** — 95+ Lighthouse scores, sub-second loading
+- 📱 **Mobile Optimized** — Responsive design with accessibility support
+- 🔍 **SEO Ready** — Dynamic sitemaps, structured data, meta optimization
+- 🚀 **CI/CD Pipeline** — Automated testing and deployment workflows
 
 ## Quick Start
 
 ```bash
-# Clone and install
 git clone https://github.com/YYvanYang/hugo-overreacted-blog.git
 cd hugo-overreacted-blog
 npm ci
-
-# Start development
 npm run dev
-
-# Build for production
-npm run build:prod
 ```
 
-**Requirements:** Hugo 0.148.1+ (extended), Node.js 18+, npm 9+
+Open [http://localhost:1313](http://localhost:1313) to view the site.
 
-## Live Demo
+## Requirements
 
-- **Production:** https://hugo-overreacted-blog-prod.zjlgdx.workers.dev/
-- **Staging:** https://hugo-overreacted-blog-staging.zjlgdx.workers.dev/
+| Tool | Version | Purpose |
+|------|---------|---------|
+| Hugo | 0.148.1+ (extended) | Static site generation |
+| Node.js | 18+ | Build tools and dependencies |
+| npm | 9+ | Package management |
 
-## Documentation
+## Commands
 
-- **[📖 Complete Guide](docs/)** - Technical documentation and guides
-- **[🚀 Deployment](docs/technical/deployment.md)** - Cloudflare Workers setup
-- **[🎨 Customization](docs/technical/asset-processing.md)** - Theming and assets
-- **[🔧 Development](CLAUDE.md)** - AI assistant guidelines
+```bash
+# Development
+npm run dev              # Start dev server with drafts
+npm run build:dev        # Development build
+npm run build:prod       # Production build
+
+# Testing
+npm run test:system      # Validate requirements
+npm run test:deployment  # Test deployed site
+npm run test:all         # Run all tests
+
+# Deployment
+npm run deploy:staging   # Deploy to staging
+npm run deploy:production # Deploy to production
+```
 
 ## Deployment
 
-### Cloudflare Workers (Recommended)
+### Cloudflare Workers
 
-1. Install Wrangler: `npm install -g wrangler`
-2. Configure `wrangler.toml` with your settings
-3. Deploy: `npm run deploy:production`
+1. Configure secrets in your repository:
+   ```
+   CLOUDFLARE_API_TOKEN
+   CLOUDFLARE_ACCOUNT_ID
+   ```
 
-### GitHub Actions
+2. Set environment variables:
+   ```
+   STAGING_URL
+   PRODUCTION_URL
+   ```
 
-Set repository secrets:
-- `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_ACCOUNT_ID`
+3. Push to `develop` (staging) or `main` (production) branch
 
-Set repository variables:
-- `STAGING_URL`
-- `PRODUCTION_URL`
+Deployment is automated via GitHub Actions. Manual deployment available via Wrangler CLI.
 
-## Project Structure
+## Architecture
 
 ```
-├── assets/          # Stylesheets and JavaScript
-├── content/         # Markdown content
-├── layouts/         # Hugo templates
-├── scripts/         # Build and deployment scripts
-├── docs/           # Documentation
-└── .github/        # CI/CD workflows
+├── assets/              # CSS, JS, and other assets
+│   ├── css/            # Tailwind CSS files
+│   └── js/             # JavaScript modules
+├── content/            # Markdown content
+│   └── posts/          # Blog posts
+├── layouts/            # Hugo templates
+│   ├── _default/       # Default templates
+│   └── partials/       # Reusable components
+├── scripts/            # Build automation
+└── .github/workflows/  # CI/CD pipelines
 ```
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/name`
-3. Test your changes: `npm run test:all`
+1. Fork and clone the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Run tests: `npm run test:all`
 4. Submit a pull request
-
-See [Contributing Guidelines](docs/development/) for details.
-
-## Performance
-
-- **Lighthouse Score:** 95+ across all categories
-- **Core Web Vitals:** Optimal ratings
-- **Bundle Size:** Minimized with tree-shaking
-- **Loading Speed:** Sub-second first contentful paint
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-Inspired by [overreacted.io](https://overreacted.io/) by Dan Abramov.
+MIT © [YYvanYang](https://github.com/YYvanYang)
 
 ---
 
-**[Live Demo](https://hugo-overreacted-blog-prod.zjlgdx.workers.dev/)** • **[Documentation](docs/)** • **[Issues](https://github.com/YYvanYang/hugo-overreacted-blog/issues)**
+<div align="center">
+
+**Built with [Hugo](https://gohugo.io/) • Styled with [Tailwind CSS](https://tailwindcss.com/) • Deployed on [Cloudflare Workers](https://workers.cloudflare.com/)**
+
+</div>
