@@ -1,4 +1,4 @@
-{{/* Navigation menu partial with hierarchical support and external link handling */}}
+{{/* Navigation menu partial with hierarchical support and CSS variable styling */}}
 {{- $currentPage := . }}
 {{- $isMobile := false }}
 {{- if reflect.IsMap . }}
@@ -28,13 +28,14 @@
 
   <div class="nav-item{{ if $hasChildren }} nav-item-dropdown{{ end }}">
     {{/* Main menu link */}}
-    <a href="{{ .URL | relURL }}" {{- if $isExternal }} {{- with .Params.target }} target="{{ . }}" {{ else }}
-      target="_blank" {{ end }} {{- with .Params.rel }} rel="{{ . }}" {{ else }} rel="external noopener noreferrer" {{
-      end }} {{- end }} {{- if $isActive }} class="nav-link active focus-visible" aria-current="page" {{- else if
-      $isAncestor }} class="nav-link ancestor focus-visible" aria-current="true" {{- else }}
-      class="nav-link focus-visible" {{- end }} {{- if $hasChildren }} aria-haspopup="true" aria-expanded="false" 
-      aria-describedby="submenu-{{ .Name | urlize }}-desc" role="button" {{- end }}
-      {{- if $hasChildren }} tabindex="0" {{- end }}>
+    <a href="{{ .URL | relURL }}" 
+       {{- if $isExternal }} {{- with .Params.target }} target="{{ . }}" {{ else }}
+       target="_blank" {{ end }} {{- with .Params.rel }} rel="{{ . }}" {{ else }} rel="external noopener noreferrer" {{
+       end }} {{- end }} 
+       {{- if $isActive }} class="nav-link active focus-visible" aria-current="page" {{- else if
+       $isAncestor }} class="nav-link ancestor focus-visible" aria-current="true" {{- else }}
+       class="nav-link focus-visible" {{- end }} 
+       {{- if $hasChildren }} aria-haspopup="true" aria-expanded="false" role="button" {{- end }}>
       {{ .Name }}
       {{- if $isExternal }}
       <svg style="width: 0.875rem; height: 0.875rem; margin-left: var(--space-1);" fill="none" stroke="currentColor"
@@ -52,12 +53,6 @@
       </svg>
       {{- end }}
     </a>
-    
-    {{- if $hasChildren }}
-    <span id="submenu-{{ .Name | urlize }}-desc" class="sr-only">
-      Press Enter or Space to expand submenu, use arrow keys to navigate
-    </span>
-    {{- end }}
 
     {{/* Dropdown menu for children */}}
     {{- if $hasChildren }}
@@ -79,7 +74,8 @@
          tabindex="-1"
          {{- if $childIsExternal }} {{- with .Params.target }} target="{{ . }}" {{ else }}
          target="_blank" {{ end }} {{- with .Params.rel }} rel="{{ . }}" {{ else }} rel="external noopener noreferrer" {{
-         end }} {{- end }} {{- if $childIsActive }} class="nav-sublink active focus-visible" aria-current="page" {{- else
+         end }} {{- end }} 
+         {{- if $childIsActive }} class="nav-sublink active focus-visible" aria-current="page" {{- else
          }} class="nav-sublink focus-visible" {{- end }}>
         {{ .Name }}
         {{- if $childIsExternal }}
@@ -100,16 +96,16 @@
 </div>
 {{- end }}
 
-{{/* Navigation interaction styles and JavaScript */}}
+{{/* Navigation styles using CSS variables */}}
 <style>
-  /* Enhanced dropdown menu styles with proper z-index and hover states */
+  /* Desktop navigation layout */
   .nav-desktop .nav-menu {
     display: flex;
     align-items: center;
     gap: var(--space-6);
   }
   
-  /* Hide desktop navigation menu on mobile */
+  /* Hide desktop navigation on mobile */
   @media (max-width: 768px) {
     .nav-desktop .nav-menu {
       display: none !important;
@@ -124,39 +120,7 @@
     position: relative;
   }
 
-  /* Remove any default button/link styling */
-  .nav-item a,
-  .nav-item button {
-    border: none;
-    background: none;
-    font-family: inherit;
-    font-size: inherit;
-    cursor: pointer;
-  }
-
-  /* Ensure no unwanted borders or outlines */
-  .nav-item *:not(:focus-visible) {
-    outline: none !important;
-    border: none !important;
-  }
-
-  /* Specifically target navigation elements to remove browser defaults */
-  .nav-menu a,
-  .nav-menu button {
-    outline: none !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Only show focus styles when using keyboard navigation */
-  .nav-menu a:focus:not(:focus-visible),
-  .nav-menu button:focus:not(:focus-visible) {
-    outline: none !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Navigation link base styles */
+  /* Navigation link base styles using CSS variables */
   .nav-link {
     color: var(--color-text-secondary);
     text-decoration: none;
@@ -168,6 +132,7 @@
     border-radius: var(--radius);
     border: none;
     background: none;
+    font-weight: var(--font-medium);
   }
 
   .nav-link:hover,
@@ -179,50 +144,16 @@
   .nav-link.active,
   .nav-link.ancestor {
     color: var(--color-link) !important;
+    font-weight: var(--font-bold);
   }
 
-  /* Override global focus styles for navigation links */
-  .nav-link:focus,
-  .nav-link.focus-visible:focus {
-    outline: none;
-    box-shadow: none;
-  }
-
-  .nav-link:focus-visible,
-  .nav-link.focus-visible:focus-visible {
-    outline: 2px solid var(--color-focus);
-    outline-offset: 2px;
-    border-radius: var(--radius);
-  }
-
-  /* Ensure no unwanted focus styles when not using keyboard */
-  .nav-link:focus:not(:focus-visible) {
-    outline: none;
-    box-shadow: none;
-  }
-
-  /* Dropdown arrow rotation and visual feedback */
+  /* Dropdown arrow rotation */
   .nav-link .dropdown-arrow {
     transition: transform var(--transition-fast);
   }
 
-  .nav-item-dropdown:hover .nav-link .dropdown-arrow,
-  .nav-item-dropdown:focus-within .nav-link .dropdown-arrow,
-  .nav-item-dropdown.dropdown-open .nav-link .dropdown-arrow {
+  .nav-item-dropdown:hover .nav-link .dropdown-arrow {
     transform: rotate(180deg);
-  }
-  
-  /* Enhanced visual feedback for dropdown states */
-  .nav-item-dropdown.dropdown-open .nav-link {
-    background-color: var(--color-bg-secondary);
-    color: var(--color-link);
-  }
-  
-  /* Improved submenu positioning and visibility */
-  .nav-item-dropdown.dropdown-open .nav-submenu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
   }
 
   /* Submenu base styles */
@@ -243,16 +174,12 @@
     transition: all var(--transition-fast);
   }
 
-  /* Show dropdown on hover and focus */
-  .nav-item-dropdown:hover .nav-submenu,
-  .nav-item-dropdown:focus-within .nav-submenu,
-  .nav-item-dropdown.dropdown-open .nav-submenu {
+  /* Show dropdown on hover */
+  .nav-item-dropdown:hover .nav-submenu {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
   }
-
-
 
   /* Submenu link styles */
   .nav-sublink {
@@ -278,26 +205,7 @@
 
   .nav-sublink.active {
     color: var(--color-link) !important;
-  }
-
-  /* Override global focus styles for submenu links */
-  .nav-sublink:focus,
-  .nav-sublink.focus-visible:focus {
-    outline: none;
-    box-shadow: none;
-  }
-
-  .nav-sublink:focus-visible,
-  .nav-sublink.focus-visible:focus-visible {
-    outline: 2px solid var(--color-focus);
-    outline-offset: 2px;
-    border-radius: var(--radius-sm);
-  }
-
-  /* Ensure no unwanted focus styles when not using keyboard */
-  .nav-sublink:focus:not(:focus-visible) {
-    outline: none;
-    box-shadow: none;
+    font-weight: var(--font-medium);
   }
 
   /* Mobile styles */
@@ -331,286 +239,3 @@
     }
   }
 </style>
-
-<script>
-  // Enhanced navigation functionality with dropdown support
-  document.addEventListener('DOMContentLoaded', function () {
-    // Mobile menu functionality is handled by mobile-navigation.js
-
-    // Enhanced dropdown menu functionality with improved accessibility
-    const dropdownItems = document.querySelectorAll('.nav-item-dropdown');
-
-    dropdownItems.forEach(function (dropdown) {
-      const link = dropdown.querySelector('.nav-link[aria-haspopup="true"]');
-      const submenu = dropdown.querySelector('.nav-submenu');
-
-      if (link && submenu) {
-        // Set initial ARIA attributes
-        link.setAttribute('id', 'nav-' + link.textContent.trim().toLowerCase().replace(/\s+/g, '-'));
-        submenu.setAttribute('aria-labelledby', link.id);
-        
-        // Click handling for mobile/touch devices
-        link.addEventListener('click', function (event) {
-          // Only prevent default on mobile or when dropdown is closed
-          if (window.innerWidth <= 768 || !dropdown.classList.contains('dropdown-open')) {
-            event.preventDefault();
-            toggleDropdown(dropdown, link, submenu);
-          }
-        });
-
-        // Enhanced keyboard navigation with ARIA support
-        link.addEventListener('keydown', function (event) {
-          switch (event.key) {
-            case 'Enter':
-            case ' ':
-              event.preventDefault();
-              toggleDropdown(dropdown, link, submenu);
-              announceToScreenReader(
-                dropdown.classList.contains('dropdown-open') 
-                  ? 'Submenu opened' 
-                  : 'Submenu closed'
-              );
-              break;
-            case 'ArrowDown':
-              event.preventDefault();
-              openDropdown(dropdown, link, submenu);
-              focusFirstSubmenuItem(submenu);
-              announceToScreenReader('Submenu opened, navigating to first item');
-              break;
-            case 'ArrowRight':
-              if (!dropdown.classList.contains('dropdown-open')) {
-                event.preventDefault();
-                openDropdown(dropdown, link, submenu);
-                focusFirstSubmenuItem(submenu);
-                announceToScreenReader('Submenu opened, navigating to first item');
-              }
-              break;
-            case 'Escape':
-              if (dropdown.classList.contains('dropdown-open')) {
-                event.preventDefault();
-                closeDropdown(dropdown, link, submenu);
-                link.focus();
-                announceToScreenReader('Submenu closed, returned to main menu');
-              }
-              break;
-            case 'Home':
-              // Focus first navigation item
-              event.preventDefault();
-              const firstNavLink = document.querySelector('.nav-link');
-              if (firstNavLink) {
-                firstNavLink.focus();
-                announceToScreenReader('Moved to first navigation item');
-              }
-              break;
-            case 'End':
-              // Focus last navigation item
-              event.preventDefault();
-              const navLinks = document.querySelectorAll('.nav-link');
-              const lastNavLink = navLinks[navLinks.length - 1];
-              if (lastNavLink) {
-                lastNavLink.focus();
-                announceToScreenReader('Moved to last navigation item');
-              }
-              break;
-          }
-        });
-
-        // Enhanced submenu keyboard navigation
-        const submenuLinks = submenu.querySelectorAll('.nav-sublink');
-        submenuLinks.forEach(function (submenuLink, index) {
-          // Set tabindex for proper focus management
-          submenuLink.setAttribute('tabindex', '-1');
-          
-          submenuLink.addEventListener('keydown', function (event) {
-            switch (event.key) {
-              case 'ArrowDown':
-                event.preventDefault();
-                const nextIndex = (index + 1) % submenuLinks.length;
-                submenuLinks[nextIndex].focus();
-                announceToScreenReader(`Item ${nextIndex + 1} of ${submenuLinks.length}`);
-                break;
-              case 'ArrowUp':
-                event.preventDefault();
-                const prevIndex = index === 0 ? submenuLinks.length - 1 : index - 1;
-                submenuLinks[prevIndex].focus();
-                announceToScreenReader(`Item ${prevIndex + 1} of ${submenuLinks.length}`);
-                break;
-              case 'ArrowLeft':
-              case 'Escape':
-                event.preventDefault();
-                closeDropdown(dropdown, link, submenu);
-                link.focus();
-                announceToScreenReader('Returned to main menu');
-                break;
-              case 'Home':
-                event.preventDefault();
-                submenuLinks[0].focus();
-                announceToScreenReader('Moved to first submenu item');
-                break;
-              case 'End':
-                event.preventDefault();
-                submenuLinks[submenuLinks.length - 1].focus();
-                announceToScreenReader('Moved to last submenu item');
-                break;
-              case 'Tab':
-                // Allow tab to move to next focusable element outside menu
-                closeDropdown(dropdown, link, submenu);
-                break;
-            }
-          });
-          
-          // Add focus and blur handlers for better UX
-          submenuLink.addEventListener('focus', function() {
-            submenuLink.setAttribute('tabindex', '0');
-          });
-          
-          submenuLink.addEventListener('blur', function() {
-            submenuLink.setAttribute('tabindex', '-1');
-          });
-        });
-        
-        // Mouse hover handling with delay for better UX
-        let hoverTimeout;
-        
-        dropdown.addEventListener('mouseenter', function() {
-          clearTimeout(hoverTimeout);
-          hoverTimeout = setTimeout(() => {
-            if (!dropdown.classList.contains('dropdown-open')) {
-              openDropdown(dropdown, link, submenu);
-            }
-          }, 150); // Small delay to prevent accidental opens
-        });
-        
-        dropdown.addEventListener('mouseleave', function() {
-          clearTimeout(hoverTimeout);
-          hoverTimeout = setTimeout(() => {
-            if (dropdown.classList.contains('dropdown-open') && 
-                !dropdown.contains(document.activeElement)) {
-              closeDropdown(dropdown, link, submenu);
-            }
-          }, 300); // Longer delay for mouse users
-        });
-      }
-    });
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function (event) {
-      const openDropdowns = document.querySelectorAll('.nav-item-dropdown.dropdown-open');
-      openDropdowns.forEach(function (dropdown) {
-        if (!dropdown.contains(event.target)) {
-          const link = dropdown.querySelector('.nav-link[aria-haspopup="true"]');
-          const submenu = dropdown.querySelector('.nav-submenu');
-          closeDropdown(dropdown, link, submenu);
-        }
-      });
-
-      // Mobile menu outside click handling is managed by mobile-navigation.js
-    });
-
-    // Global escape key handling
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') {
-        // Mobile menu escape handling is managed by mobile-navigation.js
-        
-        // Close all open dropdowns
-        const openDropdowns = document.querySelectorAll('.nav-item-dropdown.dropdown-open');
-        openDropdowns.forEach(function (dropdown) {
-          const link = dropdown.querySelector('.nav-link[aria-haspopup="true"]');
-          const submenu = dropdown.querySelector('.nav-submenu');
-          closeDropdown(dropdown, link, submenu);
-        });
-      }
-    });
-
-    // Enhanced dropdown utility functions with accessibility support
-    function toggleDropdown(dropdown, link, submenu) {
-      if (dropdown.classList.contains('dropdown-open')) {
-        closeDropdown(dropdown, link, submenu);
-      } else {
-        openDropdown(dropdown, link, submenu);
-      }
-    }
-
-    function openDropdown(dropdown, link, submenu) {
-      // Close other open dropdowns first
-      const otherDropdowns = document.querySelectorAll('.nav-item-dropdown.dropdown-open');
-      otherDropdowns.forEach(function (otherDropdown) {
-        if (otherDropdown !== dropdown) {
-          const otherLink = otherDropdown.querySelector('.nav-link[aria-haspopup="true"]');
-          const otherSubmenu = otherDropdown.querySelector('.nav-submenu');
-          closeDropdown(otherDropdown, otherLink, otherSubmenu);
-        }
-      });
-
-      dropdown.classList.add('dropdown-open');
-      link.setAttribute('aria-expanded', 'true');
-      submenu.setAttribute('aria-hidden', 'false');
-      
-      // Update submenu items tabindex for keyboard navigation
-      const submenuLinks = submenu.querySelectorAll('.nav-sublink');
-      submenuLinks.forEach((item, index) => {
-        item.setAttribute('tabindex', index === 0 ? '0' : '-1');
-      });
-      
-      // Add visual indicator for screen readers
-      const menuName = link.textContent.trim();
-      announceToScreenReader(`${menuName} submenu opened with ${submenuLinks.length} items`);
-    }
-
-    function closeDropdown(dropdown, link, submenu) {
-      dropdown.classList.remove('dropdown-open');
-      link.setAttribute('aria-expanded', 'false');
-      submenu.setAttribute('aria-hidden', 'true');
-      
-      // Reset submenu items tabindex
-      const submenuLinks = submenu.querySelectorAll('.nav-sublink');
-      submenuLinks.forEach(item => {
-        item.setAttribute('tabindex', '-1');
-      });
-      
-      // Announce closure to screen readers
-      const menuName = link.textContent.trim();
-      announceToScreenReader(`${menuName} submenu closed`);
-    }
-
-    function focusFirstSubmenuItem(submenu) {
-      const firstLink = submenu.querySelector('.nav-sublink');
-      if (firstLink) {
-        firstLink.setAttribute('tabindex', '0');
-        firstLink.focus();
-        
-        // Announce current position
-        const submenuLinks = submenu.querySelectorAll('.nav-sublink');
-        announceToScreenReader(`Focused on first item: ${firstLink.textContent.trim()}. ${submenuLinks.length} items total`);
-      }
-    }
-    
-    // Screen reader announcement utility
-    function announceToScreenReader(message, priority = 'polite') {
-      // Use the global accessibility manager if available
-      if (window.accessibilityManager && window.accessibilityManager.announceToScreenReader) {
-        window.accessibilityManager.announceToScreenReader(message, priority);
-        return;
-      }
-      
-      // Fallback: use live region directly
-      let liveRegion = document.getElementById('live-region');
-      if (!liveRegion) {
-        liveRegion = document.createElement('div');
-        liveRegion.id = 'live-region';
-        liveRegion.setAttribute('aria-live', 'polite');
-        liveRegion.setAttribute('aria-atomic', 'true');
-        liveRegion.className = 'sr-only';
-        document.body.appendChild(liveRegion);
-      }
-      
-      liveRegion.setAttribute('aria-live', priority);
-      liveRegion.textContent = message;
-      
-      // Clear after announcement
-      setTimeout(() => {
-        liveRegion.textContent = '';
-      }, 1000);
-    }
-  });
-</script>

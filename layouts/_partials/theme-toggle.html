@@ -1,30 +1,45 @@
-{{/* Theme toggle button with enhanced accessibility */}}
-{{/* Generate unique ID based on context (mobile vs desktop) */}}
-{{ $isMobile := false }}
-{{ if reflect.IsMap . }}
-  {{ $isMobile = .mobile | default false }}
-{{ end }}
-{{ $buttonId := cond $isMobile "theme-toggle-mobile" "theme-toggle" }}
+{{/* Theme toggle button with enhanced accessibility and CSS variable styling */}}
 <button 
-  id="{{ $buttonId }}" 
+  id="theme-toggle" 
   type="button"
   class="theme-toggle focus-visible"
   aria-label="Switch to dark mode"
   aria-pressed="false"
-  aria-describedby="{{ $buttonId }}-desc"
-  title="Toggle theme (Ctrl+Shift+L)"
-  data-tooltip="Toggle between light and dark mode"
+  title="Toggle theme"
   role="switch"
   style="background: none; border: 1px solid var(--color-border); border-radius: var(--radius); padding: var(--space-2); cursor: pointer; color: var(--color-text); transition: all var(--transition-fast); width: 2.5rem; height: 2.5rem; display: flex; align-items: center; justify-content: center;"
-  onmouseover="this.style.backgroundColor='var(--color-bg-secondary)'; this.style.borderColor='var(--color-primary)';"
-  onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='var(--color-border)';"
 >
   <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" role="img">
+    {{/* Moon icon - shows in light mode (to indicate switching to dark) */}}
     <path class="moon-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+    {{/* Sun icon - shows in dark mode (to indicate switching to light) */}}
     <path class="sun-icon hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
   </svg>
   <span class="sr-only">Current theme: <span class="theme-status">light</span></span>
 </button>
-<span id="{{ $buttonId }}-desc" class="sr-only">
-  Toggle between light and dark theme. Current theme will be announced when changed. Keyboard shortcut: Ctrl+Shift+L
-</span>
+
+{{/* Theme toggle icon switching script */}}
+<style>
+  /* Theme toggle hover effects */
+  .theme-toggle:hover {
+    background-color: var(--color-bg-secondary);
+    border-color: var(--color-primary);
+  }
+  
+  /* Icon visibility based on theme */
+  html:not(.dark) .sun-icon {
+    display: none;
+  }
+  
+  html:not(.dark) .moon-icon {
+    display: block;
+  }
+  
+  html.dark .sun-icon {
+    display: block;
+  }
+  
+  html.dark .moon-icon {
+    display: none;
+  }
+</style>

@@ -166,7 +166,7 @@ else
 fi
 
 # Check if theme switcher JavaScript exists
-if [ -f "$PROJECT_ROOT/assets/js/theme-switcher.js" ]; then
+if [ -f "$PROJECT_ROOT/assets/js/theme.js" ]; then
     print_result "Theme Switcher JS" "PASS" "Theme switcher JavaScript file exists"
 else
     print_result "Theme Switcher JS" "FAIL" "Theme switcher JavaScript file missing"
