@@ -9,7 +9,7 @@
 
 **A minimalist blog template inspired by [overreacted.io](https://overreacted.io/)**
 
-[Live Demo](https://hugo-overreacted-blog-prod.zjlgdx.workers.dev/) · [Documentation](CLAUDE.md) · [Report Bug](https://github.com/YYvanYang/hugo-overreacted-blog/issues)
+[Live Demo](https://hugo-overreacted-blog-prod.zjlgdx.workers.dev/) · [Documentation](docs/) · [Getting Started](docs/guides/deployment.md) · [Report Bug](https://github.com/YYvanYang/hugo-overreacted-blog/issues)
 
 </div>
 
@@ -63,21 +63,18 @@ npm run deploy:production # Deploy to production
 
 ### Cloudflare Workers
 
-1. Configure secrets in your repository:
-   ```
-   CLOUDFLARE_API_TOKEN
-   CLOUDFLARE_ACCOUNT_ID
-   ```
+1. **Create API Token**: Use the ["Edit Cloudflare Workers" template](https://dash.cloudflare.com/profile/api-tokens)
 
-2. Set environment variables:
-   ```
-   STAGING_URL
-   PRODUCTION_URL
-   ```
+2. **Configure GitHub Secrets**:
+   - `CLOUDFLARE_API_TOKEN` (from step 1)
+   - `CLOUDFLARE_ACCOUNT_ID` (from Cloudflare dashboard)
 
-3. Push to `develop` (staging) or `main` (production) branch
+3. **Set GitHub Variables**:
+   - `STAGING_URL` and `PRODUCTION_URL`
 
-Deployment is automated via GitHub Actions. Manual deployment available via Wrangler CLI.
+4. **Deploy**: Push to `develop` (staging) or `main` (production)
+
+📖 **Detailed Setup**: See [Deployment Guide](docs/guides/deployment.md) for complete instructions.
 
 ## Architecture
 
@@ -87,12 +84,23 @@ Deployment is automated via GitHub Actions. Manual deployment available via Wran
 │   └── js/             # JavaScript modules
 ├── content/            # Markdown content
 │   └── posts/          # Blog posts
+├── docs/               # Project documentation
+│   ├── guides/         # Deployment and setup guides
+│   ├── technical/      # Technical documentation
+│   └── reports/        # Testing and validation reports
 ├── layouts/            # Hugo templates
 │   ├── _default/       # Default templates
 │   └── partials/       # Reusable components
 ├── scripts/            # Build automation
 └── .github/workflows/  # CI/CD pipelines
 ```
+
+## Documentation
+
+- 📖 **[Deployment Guide](docs/guides/deployment.md)** - Complete Cloudflare Workers setup
+- 🔧 **[Build System](docs/technical/build-system.md)** - CI/CD pipeline and asset processing
+- 🎨 **[FOUC Optimization](docs/guides/fouc-optimization.md)** - Performance and loading optimization
+- 📊 **[All Documentation](docs/)** - Browse complete documentation
 
 ## Contributing
 
