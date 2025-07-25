@@ -1,8 +1,18 @@
-{{/* Head partial for meta tags, title, and asset loading */}}
+{{/* 
+  Head Partial - Optimized Critical Rendering Path
+  
+  Loading sequence optimized for performance:
+  1. Essential meta tags and title
+  2. Critical CSS (inline) - prevents FOUC
+  3. Theme detection script - prevents theme flash  
+  4. Complete CSS (deferred) - full styling with templates.Defer
+  5. Additional resources - SEO, feeds, etc.
+*/}}
+
+{{/* 1. Essential meta tags and page title */}}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{{/* Page title */}}
 <title>
   {{- if .IsHome }}
     {{ site.Title }}
@@ -11,34 +21,10 @@
   {{- end }}
 </title>
 
+{{/* 2. Critical CSS - Inline styles for immediate layout, prevents FOUC */}}
+{{ partial "critical-css.html" . }}
 
-
-{{/* Language and alternate links */}}
-{{ if .IsTranslated }}
-  {{ range .AllTranslations }}
-    <link rel="alternate" hreflang="{{ .Language.Lang }}" href="{{ .Permalink }}">
-  {{ end }}
-{{ end }}
-
-{{/* RSS feed */}}
-{{ with .OutputFormats.Get "rss" }}
-  <link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">
-{{ end }}
-
-{{/* Favicon */}}
-<link rel="icon" type="image/x-icon" href="{{ "favicon.ico" | relURL }}">
-
-{{/* SEO optimization - comprehensive meta tags, Open Graph, Twitter Cards, and JSON-LD */}}
-{{ partial "seo.html" . }}
-
-{{/* CSS processing with templates.Defer for proper Tailwind integration */}}
-{{ with (templates.Defer (dict "key" "global")) }}
-  {{ partial "css.html" . }}
-{{ end }}
-
-{{/* JavaScript assets loaded via scripts partial - moved to body for better performance */}}
-
-{{/* Theme detection script - must be inline to prevent flash */}}
+{{/* 3. Theme detection script - Must execute before any rendering to prevent theme flash */}}
 <script>
   // No-flash theme detection and application before page render
   (function() {
@@ -105,3 +91,27 @@
     });
   })();
 </script>
+
+{{/* 4. Complete CSS processing with templates.Defer for proper Tailwind integration */}}
+{{ with (templates.Defer (dict "key" "global")) }}
+  {{ partial "css.html" . }}
+{{ end }}
+
+{{/* 5. Additional resources - loaded after critical path optimization */}}
+{{/* Language and alternate links */}}
+{{ if .IsTranslated }}
+  {{ range .AllTranslations }}
+    <link rel="alternate" hreflang="{{ .Language.Lang }}" href="{{ .Permalink }}">
+  {{ end }}
+{{ end }}
+
+{{/* RSS feed */}}
+{{ with .OutputFormats.Get "rss" }}
+  <link rel="alternate" type="application/rss+xml" title="{{ site.Title }}" href="{{ .Permalink }}">
+{{ end }}
+
+{{/* Favicon */}}
+<link rel="icon" type="image/x-icon" href="{{ "favicon.ico" | relURL }}">
+
+{{/* SEO optimization - comprehensive meta tags, Open Graph, Twitter Cards, and JSON-LD */}}
+{{ partial "seo.html" . }}
